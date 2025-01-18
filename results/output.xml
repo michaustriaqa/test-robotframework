@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.2 (Python 3.13.1 on win32)" generated="2025-01-18T00:52:39.445277" rpa="false" schemaversion="5">
+<suite id="s1" name="Test-Project" source="D:\Mich-Backup\Automation Test Exercises\RobotFramework\test-project">
+<suite id="s1-s1" name="Tests" source="D:\Mich-Backup\Automation Test Exercises\RobotFramework\test-project\tests">
+<suite id="s1-s1-s1" name="Tc001" source="D:\Mich-Backup\Automation Test Exercises\RobotFramework\test-project\tests\tc001.robot">
+<test id="s1-s1-s1-t1" name="Create Quote for Car" line="11">
+<kw name="Open Insurance Application">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:39.700987" level="INFO">Opening browser 'chrome' to base url 'http://sampleapp.tricentis.com/'.</msg>
+<arg>${LINK}</arg>
+<arg>${BROWSER}</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<status status="PASS" start="2025-01-18T00:52:39.700545" elapsed="7.548594"/>
+</kw>
+<kw name="Maximize Browser Window" owner="SeleniumLibrary">
+<doc>Maximizes current browser window.</doc>
+<status status="PASS" start="2025-01-18T00:52:47.249413" elapsed="0.040243"/>
+</kw>
+<status status="PASS" start="2025-01-18T00:52:39.699634" elapsed="7.590247"/>
+</kw>
+<kw name="Enter Vehicle Data for Automobile">
+<kw name="Scroll Element Into View" owner="SeleniumLibrary">
+<arg>css:#nav_automobile</arg>
+<doc>Scrolls the element identified by ``locator`` into view.</doc>
+<status status="PASS" start="2025-01-18T00:52:47.291439" elapsed="0.279332"/>
+</kw>
+<kw name="Click Element" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:47.571335" level="INFO">Clicking element 'css:#nav_automobile'.</msg>
+<arg>css:#nav_automobile</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:52:47.570968" elapsed="1.869032"/>
+</kw>
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>css:#entervehicledata</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2025-01-18T00:52:49.440199" elapsed="0.017529"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:52:54.458863" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:52:49.458055" elapsed="5.001079"/>
+</kw>
+<kw name="Select From List By Value" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:54.459751" level="INFO">Selecting options from selection list 'css:#make' by value Mercedes Benz.</msg>
+<arg>css:#make</arg>
+<arg>Mercedes Benz</arg>
+<doc>Selects options from selection list ``locator`` by ``values``.</doc>
+<status status="PASS" start="2025-01-18T00:52:54.459329" elapsed="0.068764"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:52:59.529757" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:52:54.528517" elapsed="5.001714"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:59.531075" level="INFO">Typing text '68' into text field 'css:#engineperformance'.</msg>
+<arg>css:#engineperformance</arg>
+<arg>68</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:52:59.530467" elapsed="0.085593"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:59.616606" level="INFO">Typing text '08/25/2023' into text field 'css:#dateofmanufacture'.</msg>
+<arg>css:#dateofmanufacture</arg>
+<arg>08/25/2023</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:52:59.616245" elapsed="0.100285"/>
+</kw>
+<kw name="Select From List By Value" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:52:59.717184" level="INFO">Selecting options from selection list 'css:#numberofseats' by value 7.</msg>
+<arg>css:#numberofseats</arg>
+<arg>7</arg>
+<doc>Selects options from selection list ``locator`` by ``values``.</doc>
+<status status="PASS" start="2025-01-18T00:52:59.716766" elapsed="0.048762"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:53:04.766653" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:52:59.765755" elapsed="5.001166"/>
+</kw>
+<kw name="Select From List By Value" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:53:04.767757" level="INFO">Selecting options from selection list 'css:#fuel' by value Diesel.</msg>
+<arg>css:#fuel</arg>
+<arg>Diesel</arg>
+<doc>Selects options from selection list ``locator`` by ``values``.</doc>
+<status status="PASS" start="2025-01-18T00:53:04.767211" elapsed="0.044269"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:53:09.812868" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:53:04.811689" elapsed="5.001445"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:53:09.813941" level="INFO">Typing text '500000' into text field 'css:#listprice'.</msg>
+<arg>css:#listprice</arg>
+<arg>500000</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:53:09.813315" elapsed="0.069185"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:53:09.883153" level="INFO">Typing text '32185' into text field 'css:#annualmileage'.</msg>
+<arg>css:#annualmileage</arg>
+<arg>32185</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:53:09.882684" elapsed="0.079876"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:53:14.963961" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:53:09.962749" elapsed="5.001484"/>
+</kw>
+<kw name="Click Button" owner="SeleniumLibrary">
+<msg time="2025-01-18T00:53:14.965125" level="INFO">Clicking button 'css:#nextenterinsurantdata'.</msg>
+<arg>css:#nextenterinsurantdata</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="PASS" start="2025-01-18T00:53:14.964408" elapsed="0.066703"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-01-18T00:53:20.032664" level="INFO">Slept 5 seconds.</msg>
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2025-01-18T00:53:15.031316" elapsed="5.001611"/>
+</kw>
+<status status="PASS" start="2025-01-18T00:52:47.290450" elapsed="32.742629"/>
+</kw>
+<kw name="End Test">
+<kw name="Close Browser" owner="SeleniumLibrary">
+<doc>Closes the current browser.</doc>
+<status status="PASS" start="2025-01-18T00:53:20.034334" elapsed="2.160606"/>
+</kw>
+<status status="PASS" start="2025-01-18T00:53:20.033674" elapsed="2.161450"/>
+</kw>
+<status status="PASS" start="2025-01-18T00:52:39.698680" elapsed="42.496838"/>
+</test>
+<doc>First Test Case</doc>
+<status status="PASS" start="2025-01-18T00:52:39.476118" elapsed="42.720679"/>
+</suite>
+<status status="PASS" start="2025-01-18T00:52:39.473793" elapsed="42.724208"/>
+</suite>
+<status status="PASS" start="2025-01-18T00:52:39.449347" elapsed="42.749831"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat name="Test-Project" id="s1" pass="1" fail="0" skip="0">Test-Project</stat>
+<stat name="Tests" id="s1-s1" pass="1" fail="0" skip="0">Test-Project.Tests</stat>
+<stat name="Tc001" id="s1-s1-s1" pass="1" fail="0" skip="0">Test-Project.Tests.Tc001</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
