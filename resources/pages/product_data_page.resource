@@ -30,17 +30,18 @@ Enter Product Data
     Select First Available Option    ${MERITRATING_FIELD}    meritrating
     Select First Available Option    ${DAMAGE_INSURANCE_FIELD}    damageinsurance
     Select First Available Option    ${COURTESY_CAR_FIELD}    courtesycar
-    Click Button    ${NEXT_BUTTON}
+    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
 
 Select First Available Option
     [Documentation]    Selects the first real (non-placeholder) option of a select field.
     ...                ``locator`` is the SeleniumLibrary locator used to select the value;
     ...                ``element_id`` is the field's raw HTML id, used to read the option
-    ...                list via JavaScript.
+    ...                list via JavaScript. Retries since the field may still be settling
+    ...                into view right after the previous step's panel closes.
     [Arguments]    ${locator}    ${element_id}
     ${value}=    Execute Javascript
     ...    return document.getElementById('${element_id}').options[1].value;
-    Select From List By Value    ${locator}    ${value}
+    Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${locator}    ${value}
 
 Product Data Should Be Accepted
     [Documentation]    Verifies that the product data step was accepted and the wizard
