@@ -10,6 +10,10 @@ CI execution.
   scope).
 - **API suite** — exercises the [JSONPlaceholder](https://jsonplaceholder.typicode.com)
   REST API with `RequestsLibrary`.
+- **UI Testing Playground suite** — covers every challenge page listed on
+  [uitestingplayground.com](http://www.uitestingplayground.com/)'s homepage
+  (Inflectra's UI Test Automation Playground: dynamic attributes, timing,
+  visibility, Shadow DOM, alerts, frames, and more), one test case per page.
 
 ## Project structure
 
@@ -21,17 +25,21 @@ resources/
 │   ├── home_page.resource
 │   ├── vehicle_data_page.resource
 │   ├── insurant_data_page.resource
-│   └── product_data_page.resource
+│   ├── product_data_page.resource
+│   └── playground_page.resource    # Locators & keywords for every Playground page
 ├── data/
-│   └── car_insurance_test_data.resource    # Named vehicle/insurant test profiles
+│   ├── car_insurance_test_data.resource    # Named vehicle/insurant test profiles
+│   └── sample_upload.txt                   # Fixture for the File Upload challenge
 └── api/
     └── jsonplaceholder.resource
 
 tests/
 ├── car_insurance_quote.robot    # End-to-end UI regression suite
 ├── insurance_navigation.robot   # UI smoke tests for the landing page
-└── api/
-    └── posts_api.robot          # API regression suite
+├── api/
+│   └── posts_api.robot          # API regression suite
+└── playground/
+    └── ui_testing_playground.robot    # One test case per playground challenge page
 ```
 
 Each page resource owns its own locators and keywords, so a markup change on
@@ -75,22 +83,30 @@ Run only the API suite:
 robot --outputdir results tests/api
 ```
 
+Run only the UI Testing Playground suite, headless:
+
+```bash
+robot --outputdir results --variable BROWSER:headlesschrome tests/playground
+```
+
 Run by tag (e.g. the fast smoke subset):
 
 ```bash
 robot --outputdir results --include smoke tests
 ```
 
-Available tags: `smoke`, `regression`, `navigation`, `api`, `car-insurance`.
+Available tags: `smoke`, `regression`, `navigation`, `api`, `car-insurance`,
+`playground`.
 
 Run results (`log.html`, `report.html`, `output.xml`, screenshots) are
 written to `results/` and are not committed to version control.
 
 ## Continuous integration
 
-`.github/workflows/tests.yml` runs the UI smoke suite (headless Chrome) and
-the full API suite on every push and pull request, and publishes the Robot
-Framework logs as workflow artifacts.
+`.github/workflows/tests.yml` runs three independent jobs on every push and
+pull request — the UI smoke suite, the API suite, and the UI Testing
+Playground suite (all headless Chrome where applicable) — and publishes
+each job's Robot Framework logs as workflow artifacts.
 
 ## Development tooling
 
@@ -144,6 +160,17 @@ validation errors, and the product-data panel correctly closed) but the
 subsequent price-plan panel never loaded even after 45+ seconds. Extending
 coverage to price selection and quote submission is a reasonable follow-up
 once that step's reliability under automation can be confirmed.
+
+The UI Testing Playground suite also targets a third-party public site,
+under `resources/pages/playground_page.resource`; the same
+markup-drift caveat applies there. Its locators and assertions were derived
+by driving the live site from CI and inspecting its real DOM and behavior,
+rather than assumed from the site's name — several pages turned out to have
+markup or interaction mechanics quite different from what a generic "UI
+testing playground" might suggest (e.g. Sample App's fields use dynamically
+generated ids with no stable attribute but their `type`, and the Visibility
+page's seven hiding techniques only take effect after a button click, not
+on page load).
 
 ## License
 
