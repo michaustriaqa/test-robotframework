@@ -28,7 +28,7 @@ Attempt Full Quote Flow
     Input Text    css:#firstname    Jane
     Input Text    css:#lastname    Doe
     Input Text    css:#birthdate    05/14/1990
-    Click Element    css:#genderfemale
+    Click Element    css:#genderfemale + span.ideal-radio
     Input Text    css:#streetaddress    Baker Street 221B
     ${country_value}=    Execute Javascript    return document.querySelector('#country').options[1].value;
     Select From List By Value    css:#country    ${country_value}
@@ -51,7 +51,7 @@ Attempt Full Quote Flow
     Click Button    css:#nextselectpriceoption
     Wait Until Element Is Visible    css:#selectsilver    timeout=15s
 
-    Click Element    css:#selectsilver
+    Click Element    css:#selectsilver + span.ideal-radio
     Click Button    css:#nextsendquote
     Wait Until Element Is Visible    css:#email
 
