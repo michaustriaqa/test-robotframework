@@ -28,6 +28,7 @@ Create Quote For Car With Valid Data
     ...                wizard accepts the submission.
     [Tags]    smoke
     Select Automobile Insurance
+    Log    STAGE: Enter Vehicle Data    console=True
     Enter Vehicle Data
     ...    make=Mercedes Benz
     ...    engine_performance=68
@@ -36,6 +37,7 @@ Create Quote For Car With Valid Data
     ...    fuel=Diesel
     ...    list_price=50000
     ...    annual_mileage=32185
+    Log    STAGE: Enter Insurant Data    console=True
     Enter Insurant Data
     ...    first_name=Jane
     ...    last_name=Doe
@@ -44,8 +46,11 @@ Create Quote For Car With Valid Data
     ...    street=Baker Street 221B
     ...    zip_code=10115
     ...    city=Berlin
+    Log    STAGE: Enter Product Data    console=True
     Enter Product Data
+    Log    STAGE: Product Data Should Be Accepted    console=True
     Product Data Should Be Accepted
+    Log    STAGE: DONE    console=True
 
 Create Quote For Car With Multiple Vehicle Profiles
     [Documentation]    The quote wizard accepts a range of valid vehicle configurations.
