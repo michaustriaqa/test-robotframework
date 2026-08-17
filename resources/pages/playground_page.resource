@@ -22,7 +22,6 @@ ${CLASS_ATTRIBUTE_TARGET_BUTTON}        css:.btn-primary
 
 # Hidden Layers
 ${HIDING_BUTTON}                        css:#greenButton
-${HIDING_BUTTON_CONTAINER}              css:#spa button
 
 # Load Delay
 ${LOAD_DELAY_BUTTON}                    css:.btn.btn-primary
@@ -49,7 +48,7 @@ ${SCROLLBAR_BUTTON}                     css:#hidingButton
 ${DYNAMIC_TABLE_ANSWER}                 css:.bg-warning
 
 # Verify Text
-${VERIFY_TEXT_PLAIN_PARAGRAPH}          css:p:not(.bg-warning)
+${VERIFY_TEXT_PLAIN_PARAGRAPH}          xpath://p[contains(text(),'Hello') and not(contains(@class,'bg-warning'))]
 ${VERIFY_TEXT_HIGHLIGHTED_PARAGRAPH}    css:.bg-warning
 
 # Progress Bar
@@ -104,7 +103,7 @@ ${FILE_UPLOAD_INPUT}                    css:#browse
 
 # Animated Button
 ${ANIMATION_START_BUTTON}               css:#animationButton
-${ANIMATION_MOVING_TARGET}               css:#movingTarget
+${ANIMATION_MOVING_TARGET}              css:#movingTarget
 ${ANIMATION_STATUS}                     css:#opstatus
 
 # Disabled Input
@@ -124,8 +123,16 @@ ${GEOLOCATION_REQUEST_BUTTON}           css:#requestLocation
 ${GEOLOCATION_RESULT}                   css:#location
 
 # Clear Input
-${CLEAR_INPUT_STANDARD_FIELDS}          css:input.clear-target, textarea.clear-target
-${CLEAR_INPUT_EDITABLE_DIV}             css:div.clear-target
+@{CLEAR_INPUT_FIELD_LOCATORS}
+...                                     css:#clearInput
+...                                     css:#clearTextarea
+...                                     css:#clearPassword
+...                                     css:#clearEmail
+...                                     css:#clearNumber
+...                                     css:#clearSearch
+...                                     css:#clearUrl
+...                                     css:#clearTel
+${CLEAR_INPUT_EDITABLE_DIV}             css:#clearContentEditable
 ${CLEAR_INPUT_STATUS}                   css:#opstatus
 
 # Scroll To Click
@@ -212,9 +219,23 @@ Get Row Cell Values
     ...                (which uses divs, not a real <table>) and returns each row's cell
     ...                text values as a list of lists, first row first.
     ${rows}=    Execute Javascript
+    ...    function cellText(cell) { return cell.textContent.trim(); }
+    ...    function rowCells(row) { return Array.from(row.querySelectorAll('[role="cell"]')).map(cellText); }
     ...    return Array.from(document.querySelectorAll('[role="row"]'))
     ...    .filter(function(row) { return row.querySelector('[role="cell"]'); })
-    ...    .map(function(row) {
-    ...    return Array.from(row.querySelectorAll('[role="cell"]')).map(function(cell) { return cell.textContent.trim(); });
-    ...    });
+    ...    .map(rowCells);
     RETURN    ${rows}
+
+Clear Field And Notify Page
+    [Documentation]    Clears an input/textarea and manually dispatches an input event.
+    ...                SeleniumLibrary's Clear Element Text updates the DOM value but does
+    ...                not fire an input event, so pages that recompute state from that
+    ...                event (like Clear Input's live counter) never notice the change
+    ...                without this extra nudge.
+    [Arguments]    ${locator}
+    Clear Element Text    ${locator}
+    ${element}=    Get WebElement    ${locator}
+    Execute Javascript
+    ...    ARGUMENTS
+    ...    arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
+    ...    ${element}

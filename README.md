@@ -10,10 +10,10 @@ CI execution.
   scope).
 - **API suite** — exercises the [JSONPlaceholder](https://jsonplaceholder.typicode.com)
   REST API with `RequestsLibrary`.
-- **UI Testing Playground suite** — covers every challenge page on
-  [uitestingplayground.com](http://www.uitestingplayground.com/) (dynamic
-  attributes, timing, visibility, Shadow DOM, alerts, and more), one test
-  case per page.
+- **UI Testing Playground suite** — covers every challenge page listed on
+  [uitestingplayground.com](http://www.uitestingplayground.com/)'s homepage
+  (Inflectra's UI Test Automation Playground: dynamic attributes, timing,
+  visibility, Shadow DOM, alerts, frames, and more), one test case per page.
 
 ## Project structure
 
@@ -163,7 +163,14 @@ once that step's reliability under automation can be confirmed.
 
 The UI Testing Playground suite also targets a third-party public site,
 under `resources/pages/playground_page.resource`; the same
-markup-drift caveat applies there.
+markup-drift caveat applies there. Its locators and assertions were derived
+by driving the live site from CI and inspecting its real DOM and behavior,
+rather than assumed from the site's name — several pages turned out to have
+markup or interaction mechanics quite different from what a generic "UI
+testing playground" might suggest (e.g. Sample App's fields use dynamically
+generated ids with no stable attribute but their `type`, and the Visibility
+page's seven hiding techniques only take effect after a button click, not
+on page load).
 
 ## License
 

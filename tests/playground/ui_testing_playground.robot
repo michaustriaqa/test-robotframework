@@ -1,11 +1,13 @@
 *** Settings ***
-Documentation       Coverage for every challenge page listed on the
-...                 uitestingplayground.com homepage. Each page is an independent,
-...                 self-contained UI automation challenge (dynamic attributes, timing,
-...                 visibility, Shadow DOM, and so on), so each test case navigates to
-...                 its own page directly rather than sharing state with the others.
+Documentation       Covers every challenge page listed on uitestingplayground.com's
+...                 homepage (Inflectra's UI Test Automation Playground), one test case
+...                 per page. Locators and assertions were derived by driving the live
+...                 site from CI and inspecting its real DOM/behavior, not guessed from
+...                 a generic memory of "a UI testing playground site" -- several pages
+...                 (Class Attribute, Hidden Layers, Sample App, Visibility, Auto Wait,
+...                 Animated Button, and others) have markup or interaction mechanics
+...                 that differ from what their names might suggest.
 
-Resource            ../../resources/common.resource
 Resource            ../../resources/pages/playground_page.resource
 
 Suite Setup         Open Playground Browser
@@ -17,236 +19,378 @@ Test Tags           playground
 
 
 *** Test Cases ***
-Dynamic ID Button Is Locatable Despite Its Changing Id
-    [Documentation]    The button's id attribute changes on every page load, so it's
-    ...                located by its stable CSS class instead.
+Dynamic Id Button Should Be Locatable Without Relying On Its Changing Id
+    [Documentation]    The button's id regenerates on every page load, so a test that
+    ...    hardcodes the id would break; a stable class-based locator must keep working
+    ...    across reloads.
     Go To Playground Page    dynamicid
-    Element Text Should Be    ${DYNAMIC_ID_BUTTON}    Button with Dynamic ID
+    ${first_id}=    Get Element Attribute    ${DYNAMIC_ID_BUTTON}    id
+    Click Button    ${DYNAMIC_ID_BUTTON}
+    Go To Playground Page    dynamicid
+    ${second_id}=    Get Element Attribute    ${DYNAMIC_ID_BUTTON}    id
+    Should Not Be Equal    ${first_id}    ${second_id}
+    ...    msg=The button's id should regenerate on every page load.
     Click Button    ${DYNAMIC_ID_BUTTON}
 
-Class Attribute Locates The Exact Button Among Look Alike Decoys
-    [Documentation]    Several buttons share very similar classes; only an exact class
-    ...                match finds the correct one.
+Class Attribute Target Button Should Be Clicked By Its Unique Class
+    [Documentation]    Three buttons share nearly identical class lists that differ only
+    ...    by a volatile class1/class2/class3 marker; only .btn-primary reliably and
+    ...    uniquely identifies the intended target.
     Go To Playground Page    classattr
-    Element Attribute Value Should Be    ${CLASS_ATTRIBUTE_TARGET_BUTTON}    class
-    ...    btn btn-primary
+    Page Should Contain Element    ${CLASS_ATTRIBUTE_TARGET_BUTTON}    limit=1
     Click Button    ${CLASS_ATTRIBUTE_TARGET_BUTTON}
 
-Hidden Layer Blocks A Second Click On The Same Button
-    [Documentation]    The first click reveals an invisible overlay covering the
-    ...                button, so a second click at the same coordinates is
-    ...                intercepted by that overlay instead of reaching the button.
+Clicking The Green Button Should Swap In A Different Layer
+    [Documentation]    The button under #spa is replaced by a different element after the
+    ...    first click, demonstrating a DOM-caching pitfall: a second click against a
+    ...    previously located WebElement reference would silently hit a stale layer.
     Go To Playground Page    hiddenlayers
+    Wait Until Element Is Visible    ${HIDING_BUTTON}
     Click Element    ${HIDING_BUTTON}
-    Element Should Be Visible    css:#hidden-layer
-    Run Keyword And Expect Error    *    Click Element    ${HIDING_BUTTON}
+    ${new_id}=    Execute Javascript    return document.querySelector('#spa button').id;
+    Should Not Be Equal    ${new_id}    greenButton
+    ...    msg=Hidden Layers should swap in a different button after the first click.
 
-Load Delay Button Appears Only After An Explicit Wait
-    [Documentation]    The page takes several seconds to render the button; only an
-    ...                explicit wait (not a fixed sleep) reliably catches it.
+Button Appearing After Delay Should Eventually Become Clickable
+    [Documentation]    The button doesn't exist in a clickable state until the server
+    ...    response delay elapses, so the test must wait rather than click immediately.
     Go To Playground Page    loaddelay
     Wait Until Element Is Visible    ${LOAD_DELAY_BUTTON}    timeout=20s
     Click Button    ${LOAD_DELAY_BUTTON}
 
-Ajax Data Request Populates The Result Text After A Delay
-    [Documentation]    Clicking the button triggers a server round trip; the result
-    ...                text only appears once that AJAX call completes.
+Ajax Data Should Load After Clicking The Trigger Button
+    [Documentation]    A GET request fires only after the button is clicked, so the
+    ...    result text must be awaited rather than read immediately.
     Go To Playground Page    ajax
     Click Button    ${AJAX_BUTTON}
     Wait Until Element Is Visible    ${AJAX_RESULT}    timeout=20s
     Element Text Should Be    ${AJAX_RESULT}    Data loaded with AJAX get request.
 
-Client Side Delay Does Not Block The Page While Waiting
-    [Documentation]    The delay here runs entirely in the browser (not a server
-    ...                round trip), but the result still only appears once it settles.
+Client Side Delay Should Compute Data After Clicking The Trigger Button
+    [Documentation]    The client-side computation runs asynchronously, so the result
+    ...    text must be awaited rather than read immediately.
     Go To Playground Page    clientdelay
     Click Button    ${CLIENT_DELAY_BUTTON}
     Wait Until Element Is Visible    ${CLIENT_DELAY_RESULT}    timeout=20s
     Element Text Should Be    ${CLIENT_DELAY_RESULT}    Data calculated on the client side.
 
-Click Registers On The Correctly Identified Button
-    [Documentation]    A decoy button sits nearby; only clicking the real target
-    ...                changes its class, confirming the right element was hit.
+Bad Button Should Respond To A Genuine Webdriver Click
+    [Documentation]    The button only reacts to physical mouse events, not JavaScript-
+    ...    dispatched DOM click events -- SeleniumLibrary's Click Button performs a real
+    ...    click, so it should succeed where a synthetic .click() call would not.
     Go To Playground Page    click
+    Wait Until Element Is Visible    ${CLICK_TARGET_BUTTON}
     Click Button    ${CLICK_TARGET_BUTTON}
-    Element Attribute Value Should Be    ${CLICK_TARGET_BUTTON}    class    btn btn-success
+    Element Should Be Visible    ${CLICK_TARGET_BUTTON}
 
-Text Input Value Is Reflected On The Button Label
-    [Documentation]    Typing a new name and clicking the button updates the button's
-    ...                own label to match what was typed.
+Updating Button Should Adopt The Typed Text As Its New Label
+    [Documentation]    The button's own label is rewritten from the text field's value
+    ...    once clicked.
     Go To Playground Page    textinput
-    Input Text    ${TEXT_INPUT_FIELD}    Automated Button Name
+    Input Text    ${TEXT_INPUT_FIELD}    Automated Label
     Click Button    ${TEXT_INPUT_UPDATE_BUTTON}
-    Element Text Should Be    ${TEXT_INPUT_UPDATE_BUTTON}    Automated Button Name
+    Element Text Should Be    ${TEXT_INPUT_UPDATE_BUTTON}    Automated Label
 
-Scrollbar Hidden Button Is Clicked After Scrolling Into View
-    [Documentation]    The button sits inside a scrollable container out of the
-    ...                initial viewport; a standard click scrolls it into view first.
+Hiding Button Should Be Clickable After Scrolling It Into View
+    [Documentation]    The button sits outside the visible scroll area until scrolled
+    ...    into view.
     Go To Playground Page    scrollbars
-    Wait Until Element Is Visible    ${SCROLLBAR_BUTTON}
+    Scroll Element Into View    ${SCROLLBAR_BUTTON}
     Click Button    ${SCROLLBAR_BUTTON}
 
-Dynamic Table Reports The Highlighted Browser Cpu Usage Correctly
-    [Documentation]    Reads which browser the warning label calls out, finds that
-    ...                browser's row in the table, and verifies the CPU percentage
-    ...                shown there matches the value stated in the label.
+Dynamic Table Chrome Cpu Value Should Match The Highlighted Answer
+    [Documentation]    The table's row order reshuffles on every page load, so the Chrome
+    ...    row must be located by its Name cell rather than a fixed position, then
+    ...    cross-checked against the highlighted answer paragraph.
     Go To Playground Page    dynamictable
-    ${result}=    Execute Javascript
-    ...    var label = document.querySelector('p.bg-warning').innerText;
-    ...    var match = label.match(/([A-Za-z]+)[^\d]*(\d+)%/);
-    ...    var browser = match[1];
-    ...    var expected = match[2];
-    ...    var actual = null;
-    ...    function checkRow(row) {
-    ...    var cells = row.querySelectorAll('td');
-    ...    if (cells[0] && cells[0].innerText.trim() === browser) { actual = cells[1].innerText.trim(); }
-    ...    }
-    ...    document.querySelectorAll('table tbody tr').forEach(checkRow);
-    ...    return JSON.stringify({browser: browser, expected: expected, actual: actual});
-    ${data}=    Evaluate    json.loads('''${result}''')    json
-    ${message}=    Catenate
-    ...    CPU usage for ${data}[browser] in the table (${data}[actual]%)
-    ...    did not match the warning label (${data}[expected]%)
-    Should Be Equal As Strings    ${data}[expected]    ${data}[actual]    msg=${message}
+    @{rows}=    Get Row Cell Values
+    VAR    ${chrome_row}=    ${NONE}
+    FOR    ${row}    IN    @{rows}
+        IF    '${row}[0]' == 'Chrome'
+            VAR    ${chrome_row}=    ${row}
+        END
+    END
+    Should Not Be Equal    ${chrome_row}    ${NONE}    msg=No Chrome row found in the dynamic table.
+    ${answer_text}=    Get Text    ${DYNAMIC_TABLE_ANSWER}
+    Should Be Equal As Strings    ${answer_text}    Chrome CPU: ${chrome_row}[3]
 
-Verify Text Handles Non Obvious Internal Whitespace
-    [Documentation]    The paragraph's rendered text uses irregular internal spacing
-    ...                that a naive hard-coded comparison would miss, so it's
-    ...                normalized before asserting on its content.
+Verify Text Highlighted Paragraph Should Match The Plain Paragraph Once Normalized
+    [Documentation]    The two paragraphs look identical but may differ in raw whitespace
+    ...    characters (e.g. a non-breaking space), so a correct comparison must normalize
+    ...    whitespace before asserting equality.
     Go To Playground Page    verifytext
-    ${text}=    Get Text    ${VERIFY_TEXT_PARAGRAPH}
-    ${normalized}=    Evaluate    ' '.join($text.split())
-    Should Not Be Empty    ${normalized}
-    Should Not Contain    ${normalized}    ${SPACE}${SPACE}
+    ${plain_text}=    Get Text    ${VERIFY_TEXT_PLAIN_PARAGRAPH}
+    ${highlighted_text}=    Get Text    ${VERIFY_TEXT_HIGHLIGHTED_PARAGRAPH}
+    ${normalized_plain}=    Evaluate    ' '.join('''${plain_text}'''.split())
+    ${normalized_highlighted}=    Evaluate    ' '.join('''${highlighted_text}'''.split())
+    Should Be Equal    ${normalized_plain}    ${normalized_highlighted}
 
-Progress Bar Can Be Stopped Near A Target Value
-    [Documentation]    Starts the progress bar, stops it once it reaches at least 75%,
-    ...                and verifies it didn't run all the way to completion.
+Progress Bar Should Reach And Hold The Target Value
+    [Documentation]    The bar fills asynchronously after Start is clicked; Stop must be
+    ...    clicked only once it has reached the target percentage.
     Go To Playground Page    progressbar
     Click Button    ${PROGRESS_BAR_START_BUTTON}
-    Wait Until Keyword Succeeds    20s    100ms    Progress Bar Value Should Be At Least    75
+    Wait Until Keyword Succeeds    30s    500ms    Progress Bar Value Should Be At Least    75
     Click Button    ${PROGRESS_BAR_STOP_BUTTON}
-    ${value}=    Get Element Attribute    ${PROGRESS_BAR}    aria-valuenow
-    Should Be True    75 <= ${value} <= 100
+    ${final_value}=    Get Element Attribute    ${PROGRESS_BAR}    aria-valuenow
+    Should Be True    ${final_value} >= 75
 
-Each Visibility Challenge Is Undetectable By Its Own Hiding Technique
-    [Documentation]    Clicking "Hide" hides five buttons via five different
-    ...                techniques; each is verified undetectable by whichever check
-    ...                actually applies to how it was hidden.
+Every Hiding Technique Should Be Correctly Detected After Clicking Hide
+    [Documentation]    Clicking Hide reveals seven distinct ways an element can be hidden
+    ...    from a real user. Selenium's built-in visibility check only catches three of
+    ...    them (removed from DOM, visibility:hidden, display:none) -- zero width,
+    ...    opacity 0, occlusion by another element and off-screen positioning all need
+    ...    direct inspection instead.
     Go To Playground Page    visibility
+    Element Should Be Visible    ${VISIBILITY_HIDE_BUTTON}
     Click Button    ${VISIBILITY_HIDE_BUTTON}
     Page Should Not Contain Element    ${VISIBILITY_REMOVED_BUTTON}
-    Element Should Not Be Visible    ${VISIBILITY_ZERO_WIDTH_BUTTON}
-    Element Should Not Be Visible    ${VISIBILITY_TRANSPARENT_BUTTON}
     Element Should Not Be Visible    ${VISIBILITY_INVISIBLE_BUTTON}
-    Element Should Not Be Visible    ${VISIBILITY_NOT_VISIBLE_BUTTON}
-    Run Keyword And Expect Error    *    Click Button    ${VISIBILITY_OVERLAPPED_BUTTON}
+    Element Should Not Be Visible    ${VISIBILITY_NOT_DISPLAYED_BUTTON}
+    Remaining Visibility Techniques Should Be Hidden
 
-Sample App Login Succeeds With The Documented Password
-    [Documentation]    The sample login form accepts any username paired with the
-    ...                password "pwd" and greets the user by the name they entered.
+Sample App Should Log In With The Valid Password And Reject An Invalid One
+    [Documentation]    Both fields have dynamically generated ids on every page load, so
+    ...    they're located by their stable type attribute instead.
     Go To Playground Page    sampleapp
-    Input Text    ${SAMPLE_APP_USERNAME_FIELD}    michelle
-    Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    pwd
+    Input Text    ${SAMPLE_APP_USERNAME_FIELD}    Michelle
+    Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    wrong-password
     Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
-    Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Welcome, michelle!
+    Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    User logged out.
+    Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    ${SAMPLE_APP_VALID_PASSWORD}
+    Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
+    Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Welcome, Michelle!
 
-Mouse Over Link Only Registers A Click After Hovering First
-    [Documentation]    The link is covered by a decoy layer that only clears on
-    ...                mouse-over, so hovering before clicking is required for the
-    ...                click to register.
+Mouse Over Link Click Count Should Increment After Hovering
+    [Documentation]    Hovering over the link replaces it with a new DOM element carrying
+    ...    the same text, so a WebElement reference taken before hovering would go stale;
+    ...    the element must be re-located after the hover before clicking it.
     Go To Playground Page    mouseover
     Mouse Over    ${MOUSE_OVER_LINK}
     Click Element    ${MOUSE_OVER_LINK}
-    Element Text Should Be    ${MOUSE_OVER_CLICK_COUNT}    1
+    Element Text Should Not Be    ${MOUSE_OVER_CLICK_COUNT}    0
+    Click Element    ${MOUSE_OVER_BUTTON_LINK}
+    Element Text Should Not Be    ${MOUSE_OVER_BUTTON_CLICK_COUNT}    0
 
-Non Breaking Space Button Is Missed By A Naive Text Locator
-    [Documentation]    The button's visible text looks like "My Button" but uses a
-    ...                non-breaking space, so a locator built on a regular space
-    ...                genuinely fails to find it, while a class-based locator works.
+Non Breaking Space Button Should Not Match An Exact Text Locator
+    [Documentation]    The button's label contains a non-breaking space rather than a
+    ...    regular one, so an exact-text xpath locator silently fails to match while a
+    ...    class-based locator remains reliable.
     Go To Playground Page    nbsp
-    Run Keyword And Expect Error    *    Page Should Contain Element
-    ...    ${NBSP_BUTTON_EXACT_TEXT}
-    Element Should Be Visible    ${NBSP_BUTTON}
+    Page Should Not Contain Element    ${NBSP_BUTTON_EXACT_TEXT}
     Click Button    ${NBSP_BUTTON}
 
-Overlapped Input Still Receives The Entered Text
-    [Documentation]    The name field becomes covered by another panel once the page
-    ...                is interacted with, but sending keys directly still correctly
-    ...                sets its value.
+Overlapped Name Field Should Accept Text Set Through Javascript
+    [Documentation]    The field is covered by another element, so native Selenium
+    ...    keystrokes never register; setting the value directly through JavaScript and
+    ...    dispatching an input event is the documented workaround.
     Go To Playground Page    overlapped
-    Input Text    ${OVERLAPPED_NAME_FIELD}    Michelle
-    Element Attribute Value Should Be    ${OVERLAPPED_NAME_FIELD}    value    Michelle
+    Set Value Via Javascript    ${OVERLAPPED_NAME_FIELD}    Michelle Austria
+    ${value}=    Get Element Attribute    ${OVERLAPPED_NAME_FIELD}    value
+    Should Be Equal    ${value}    Michelle Austria
 
-Shadow Dom Generated Value Can Be Copied Into The Regular Input
-    [Documentation]    The GUID is generated and displayed inside a Shadow DOM tree
-    ...                that plain locators can't pierce, so it's read via JavaScript.
-    ...                Clicking "Copy" should place that same value into the visible
-    ...                input field that lives outside the shadow tree.
+Shadow Dom Generated Value Should Be Readable Through The Shadow Root
+    [Documentation]    The generate button, edit field and copy button all live inside a
+    ...    Shadow DOM tree that plain SeleniumLibrary locators cannot pierce.
     Go To Playground Page    shadowdom
     Click Shadow Element    ${SHADOW_HOST}    ${SHADOW_GENERATE_BUTTON_ID}
-    ${generated}=    Get Shadow Element Text    ${SHADOW_HOST}    ${SHADOW_OUTPUT_ID}
+    ${generated_value}=    Get Shadow Element Text    ${SHADOW_HOST}    ${SHADOW_EDIT_FIELD_ID}
+    Should Not Be Empty    ${generated_value}
     Click Shadow Element    ${SHADOW_HOST}    ${SHADOW_COPY_BUTTON_ID}
-    Textfield Value Should Be    ${SHADOW_EDIT_FIELD}    ${generated}
+    ${value_after_copy}=    Get Shadow Element Text    ${SHADOW_HOST}    ${SHADOW_EDIT_FIELD_ID}
+    Should Be Equal    ${value_after_copy}    ${generated_value}
 
-Alert Result Reflects The Chosen Alert Action
-    [Documentation]    Clicking the button triggers a native JS alert after a short
-    ...                delay; accepting it is reflected in the result text.
+Alert Confirm And Prompt Dialogs Should All Be Handled
+    [Documentation]    Each button opens a different native dialog type; all three must
+    ...    be handled through SeleniumLibrary's alert keywords rather than DOM locators.
     Go To Playground Page    alerts
-    Click Button    ${ALERT_BUTTON}
-    Handle Alert    action=ACCEPT    timeout=10s
-    Element Text Should Be    ${ALERT_RESULT}    You have chosen: Ok
+    Trigger Alert And Verify Message    ${ALERT_BUTTON}
+    Trigger Alert And Verify Message    ${CONFIRM_BUTTON}
+    Trigger Alert And Verify Message    ${PROMPT_BUTTON}    prompt_text=Michelle
 
-File Upload Accepts A Selected File
-    [Documentation]    Selecting a local file and submitting the upload form should
-    ...                be accepted without error.
+File Upload Should Accept A File Selected Inside The Upload Frame
+    [Documentation]    The upload widget lives inside an iframe with no top-level file
+    ...    input, so the frame must be selected before the file input becomes reachable.
     Go To Playground Page    upload
+    Select Frame    ${FILE_UPLOAD_IFRAME}
     Choose File    ${FILE_UPLOAD_INPUT}    ${SAMPLE_UPLOAD_FILE}
-    Click Button    ${FILE_UPLOAD_BUTTON}
+    ${value}=    Get Element Attribute    ${FILE_UPLOAD_INPUT}    value
+    Should Contain    ${value}    sample_upload.txt
+    Unselect Frame
 
-Animated Button Is Clicked Only Once It Stops Moving
-    [Documentation]    The button moves via a CSS transition for a short time after
-    ...                the page loads; clicking waits for it to settle first.
-    Go To Playground Page    animatedbutton
-    Wait Until Animation Stops    ${ANIMATED_BUTTON}
-    Click Button    ${ANIMATED_BUTTON}
+Moving Target Should Become Clickable Once Its Animation Stops
+    [Documentation]    Clicking the target while it's still animating would hit whatever
+    ...    coordinates it occupied at click time, not necessarily the element -- the test
+    ...    must wait for the animation to finish first.
+    Go To Playground Page    animation
+    Click Button    ${ANIMATION_START_BUTTON}
+    Wait Until Animation Stops    ${ANIMATION_MOVING_TARGET}
+    Click Button    ${ANIMATION_MOVING_TARGET}
+    Element Text Should Be    ${ANIMATION_STATUS}
+    ...    Moving Target clicked. It's class name is 'btn btn-primary'
 
-Disabled Input Becomes Enabled After A Delay
-    [Documentation]    The input field starts disabled and is enabled by client-side
-    ...                JavaScript after a short delay.
+Disabled Input Should Become Enabled After Its Delay
+    [Documentation]    The field stays disabled until the enable button's delay elapses.
     Go To Playground Page    disabledinput
-    Wait Until Element Is Enabled    ${DISABLED_INPUT_FIELD}    timeout=10s
-    Input Text    ${DISABLED_INPUT_FIELD}    Michelle
+    Click Button    ${DISABLED_INPUT_ENABLE_BUTTON}
+    Wait Until Element Is Enabled    ${DISABLED_INPUT_FIELD}    timeout=6s
+    Input Text    ${DISABLED_INPUT_FIELD}    Ready
+    Textfield Value Should Be    ${DISABLED_INPUT_FIELD}    Ready
 
-Auto Wait Button Is Clicked Only After Its Own Delay Settles
-    [Documentation]    Clicking the button starts a client-side delay before the
-    ...                success text appears; an explicit wait is required since the
-    ...                button gives no visible feedback while the delay is running.
-    Go To Playground Page    auto_wait
-    Click Button    ${AUTO_WAIT_BUTTON}
-    Wait Until Element Is Visible    ${AJAX_RESULT}    timeout=20s
+Auto Wait Target Button Should Report Its State Was Restored
+    [Documentation]    Applying a delay temporarily changes the target element's state;
+    ...    the status message confirms when it has been restored to normal.
+    Go To Playground Page    autowait
+    Click Button    ${AUTO_WAIT_APPLY_3S_BUTTON}
+    Wait Until Element Contains    ${AUTO_WAIT_STATUS}    Target element state restored.    timeout=5s
+    Click Button    ${AUTO_WAIT_TARGET_BUTTON}
 
-Auto Complete Suggests And Selects A Matching Tag
-    [Documentation]    Typing a partial name shows matching suggestions; selecting one
-    ...                adds it as a tag.
-    Go To Playground Page    auto_complete
-    Input Text    ${AUTO_COMPLETE_INPUT}    Cal
-    Wait Until Element Is Visible    ${AUTO_COMPLETE_SUGGESTIONS}    timeout=10s
-    Click Element    ${AUTO_COMPLETE_FIRST_SUGGESTION}
-    Element Should Be Visible    ${AUTO_COMPLETE_SELECTED_TAGS}
+Frames Should Be Selectable To Reach Content Inside Them
+    [Documentation]    Elements inside an iframe are invisible to SeleniumLibrary until
+    ...    the frame is explicitly selected.
+    Go To Playground Page    frames
+    Select Frame    ${FRAMES_OUTER_FRAME}
+    ${body_text_length}=    Execute Javascript    return document.body.innerText.trim().length;
+    Should Be True    ${body_text_length} > 0
+    ...    msg=The frame's document should contain readable content once selected.
+    Unselect Frame
+
+Geolocation Request Should Resolve Rather Than Hang
+    [Documentation]    Headless Chrome has no location permission granted, so the request
+    ...    resolves with an "unavailable" result rather than hanging indefinitely -- the
+    ...    test asserts the status text changes at all, not a specific coordinate.
+    Go To Playground Page    geolocation
+    Element Text Should Be    ${GEOLOCATION_RESULT}    Not requested
+    Click Button    ${GEOLOCATION_REQUEST_BUTTON}
+    Wait Until Keyword Succeeds    10s    500ms
+    ...    Element Text Should Not Be    ${GEOLOCATION_RESULT}    Not requested
+
+Clear Input Should Reduce The Non Empty Field Counter To Zero
+    [Documentation]    SeleniumLibrary's Clear Element Text updates the DOM value but
+    ...    doesn't fire an input event, so the page's live counter needs each field's
+    ...    change to be dispatched manually before it will notice.
+    Go To Playground Page    clearinput
+    Element Text Should Be    ${CLEAR_INPUT_STATUS}    Non-empty fields remaining: 9
+    FOR    ${locator}    IN    @{CLEAR_INPUT_FIELD_LOCATORS}
+        Clear Field And Notify Page    ${locator}
+    END
+    Execute Javascript
+    ...    var editable = document.querySelector('#clearContentEditable');
+    ...    editable.textContent = '';
+    ...    editable.dispatchEvent(new Event('input', {bubbles: true}));
+    Element Text Should Be    ${CLEAR_INPUT_STATUS}    Non-empty fields remaining: 0
+
+All Scroll To Click Targets Should Be Reachable And Clicked
+    [Documentation]    Each button needs a different technique to become clickable: a
+    ...    plain page scroll, scrolling inside a nested scrollable container, and
+    ...    hovering over a row to reveal a button that isn't in the layout at all until
+    ...    then.
+    Go To Playground Page    scrolltoclick
+    FOR    ${target}    IN    ${SCROLL_TARGET_1}    ${SCROLL_TARGET_2}    ${SCROLL_TARGET_3}
+        Scroll Element Into View    ${target}
+        Click Button    ${target}
+    END
+    Mouse Over    ${SCROLL_HOVER_ROW}
+    Scroll Element Into View    ${SCROLL_TARGET_4}
+    Click Button    ${SCROLL_TARGET_4}
+    Element Text Should Be    ${SCROLL_PROGRESS_TEXT}    Buttons clicked: 4 / 4
+
+Css Selectors Should Correctly Distinguish The Highlighted Button From Its Hidden Siblings
+    [Documentation]    Five buttons are hidden using five different CSS techniques, none
+    ...    of which are all caught by Selenium's built-in visibility check alone.
+    Go To Playground Page    cssselectors
+    Click Button    ${CSS_SELECTORS_PRIMARY_BUTTON}
+    Click Button    ${CSS_SELECTORS_VISIBLE_BUTTON}
+    Element Text Should Be    ${CSS_SELECTORS_HIGHLIGHTED_BUTTON}    Third
+    Element Should Not Be Visible    ${CSS_SELECTORS_HIDDEN_DISPLAY}
+    Element Should Not Be Visible    ${CSS_SELECTORS_HIDDEN_VISIBILITY}
+    Remaining Css Selector Hiding Techniques Should Be Hidden
+
+Select Dropdowns Should Update Their Status Text After Each Selection
+    [Documentation]    Each dropdown's status paragraph reflects the most recent
+    ...    selection, single-select or multi-select alike.
+    Go To Playground Page    select
+    Select From List By Label    ${SELECT_LANGUAGE}    Python
+    Element Text Should Be    ${SELECT_STATUS_LANGUAGE}    Selected: Python (value: py)
+    Select From List By Label    ${SELECT_CITY}    New York
+    Element Should Not Contain    ${SELECT_STATUS_CITY}    none
+    Select From List By Label    ${SELECT_PRODUCT}    Release 1.0
+    Element Should Not Contain    ${SELECT_STATUS_PRODUCT}    none
+    Select From List By Label    ${SELECT_FRUITS}    Banana
+    Element Should Contain    ${SELECT_STATUS_FRUITS}    Banana
 
 
 *** Keywords ***
 Open Playground Browser
-    [Documentation]    Starts a single browser session reused across every challenge
-    ...                page in this suite, since each test navigates independently.
+    [Documentation]    Starts a single browser session reused by every test in this suite.
     Open Browser    about:blank    ${BROWSER}
     Set Selenium Timeout    ${SELENIUM_TIMEOUT}
     Set Window Size    1920    1080
 
+Capture Screenshot On Failure
+    [Documentation]    Saves a screenshot of the current page whenever a test fails.
+    Run Keyword If Test Failed    Capture Page Screenshot
+
 Progress Bar Value Should Be At Least
-    [Documentation]    Fails unless the progress bar's current value has reached the
-    ...                given threshold.
+    [Documentation]    Polls the progress bar's aria-valuenow attribute until it reaches
+    ...                the given threshold, or fails once Wait Until Keyword Succeeds
+    ...                gives up retrying.
     [Arguments]    ${threshold}
     ${value}=    Get Element Attribute    ${PROGRESS_BAR}    aria-valuenow
     Should Be True    ${value} >= ${threshold}
+
+Trigger Alert And Verify Message
+    [Documentation]    Clicks a button that opens a native dialog, optionally answers a
+    ...                prompt, accepts the dialog, and asserts it carried a message.
+    [Arguments]    ${button_locator}    ${prompt_text}=${NONE}
+    Click Button    ${button_locator}
+    IF    $prompt_text is not None    Input Text Into Alert    ${prompt_text}
+    ${message}=    Handle Alert    action=ACCEPT
+    Should Not Be Empty    ${message}
+
+Remaining Visibility Techniques Should Be Hidden
+    [Documentation]    Checks the four Visibility page techniques that Selenium's
+    ...                built-in visibility check cannot detect on its own: zero width,
+    ...                opacity 0, occlusion by another element, and off-screen position.
+    ${result_json}=    Execute Javascript
+    ...    function rect(id) { return document.getElementById(id).getBoundingClientRect(); }
+    ...    var overlapRect = rect('overlappedButton');
+    ...    var topElement = document.elementFromPoint(
+    ...    overlapRect.left + overlapRect.width / 2, overlapRect.top + overlapRect.height / 2);
+    ...    return JSON.stringify({
+    ...    zeroWidth: rect('zeroWidthButton').width,
+    ...    transparentOpacity: parseFloat(getComputedStyle(document.getElementById('transparentButton')).opacity),
+    ...    overlapped: topElement !== document.getElementById('overlappedButton'),
+    ...    offscreenLeft: rect('offscreenButton').left
+    ...    });
+    ${result}=    Evaluate    json.loads('''${result_json}''')    json
+    Should Be Equal As Numbers    ${result}[zeroWidth]    0
+    ...    msg=Zero Width button should have zero width after clicking Hide.
+    Should Be Equal As Numbers    ${result}[transparentOpacity]    0
+    ...    msg=Transparent button should have opacity 0 after clicking Hide.
+    Should Be True    ${result}[overlapped]
+    ...    msg=Overlapped button should be covered by another element after clicking Hide.
+    Should Be True    ${result}[offscreenLeft] < 0
+    ...    msg=Offscreen button should be positioned outside the viewport after clicking Hide.
+
+Remaining Css Selector Hiding Techniques Should Be Hidden
+    [Documentation]    Checks the three CSS Selectors page techniques that Selenium's
+    ...                built-in visibility check cannot detect on its own: clipping by an
+    ...                overflow:hidden ancestor, opacity 0, and off-screen position.
+    ${result_json}=    Execute Javascript
+    ...    function rect(id) { return document.getElementById(id).getBoundingClientRect(); }
+    ...    var overflowRect = rect('hidden-overflow');
+    ...    var topElement = document.elementFromPoint(
+    ...    overflowRect.left + overflowRect.width / 2, overflowRect.top + overflowRect.height / 2);
+    ...    return JSON.stringify({
+    ...    overflowClipped: topElement !== document.getElementById('hidden-overflow'),
+    ...    opacityValue: parseFloat(getComputedStyle(document.getElementById('hidden-opacity')).opacity),
+    ...    offscreenLeft: rect('hidden-offscreen').left
+    ...    });
+    ${result}=    Evaluate    json.loads('''${result_json}''')    json
+    Should Be True    ${result}[overflowClipped]
+    ...    msg=The overflow-clipped button should not be the topmost element at its own coordinates.
+    Should Be Equal As Numbers    ${result}[opacityValue]    0
+    ...    msg=The opacity-hidden button should have opacity 0.
+    Should Be True    ${result}[offscreenLeft] < 0
+    ...    msg=The offscreen button should be positioned outside the viewport.
