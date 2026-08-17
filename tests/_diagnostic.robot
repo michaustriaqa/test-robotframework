@@ -1,20 +1,66 @@
 *** Settings ***
-Documentation       Temporary diagnostic suite: dumps live page structure to CI logs
-...                 so real locators can be confirmed. Not part of the portfolio.
+Documentation       Temporary diagnostic suite: attempts the full corrected wizard flow
+...                 against the live application and logs the outcome. Not part of the
+...                 portfolio.
 Resource            ../resources/common.resource
-Resource            ../resources/pages/home_page.resource
 Suite Setup         Open Insurance Application
 Suite Teardown      Close Insurance Application
 Test Tags           smoke
 
 
 *** Test Cases ***
-Dump Page Structure
-    Go To Homepage
-    ${home_ids}=    Execute Javascript
-    ...    return Array.from(document.querySelectorAll('[id]')).map(e => e.tagName + '#' + e.id + '.' + e.className).join(' | ');
-    Log    HOME: ${home_ids}    console=True
-    Select Automobile Insurance
-    ${vehicle_ids}=    Execute Javascript
-    ...    return Array.from(document.querySelectorAll('[id]')).map(e => e.tagName + '#' + e.id + '.' + e.className).join(' | ');
-    Log    VEHICLE: ${vehicle_ids}    console=True
+Attempt Full Quote Flow
+    Go To    ${APP_URL}
+    Wait Until Element Is Visible    css:#nav_automobile
+    Click Element    css:#nav_automobile
+    Wait Until Element Is Visible    css:#make
+
+    Select From List By Value    css:#make    Mercedes Benz
+    Input Text    css:#engineperformance    68
+    Input Text    css:#dateofmanufacture    08/25/2023
+    Select From List By Value    css:#numberofseats    7
+    Select From List By Value    css:#fuel    Diesel
+    Input Text    css:#listprice    50000
+    Input Text    css:#annualmileage    32185
+    Click Button    css:#nextenterinsurantdata
+    Wait Until Element Is Visible    css:#firstname
+
+    Input Text    css:#firstname    Jane
+    Input Text    css:#lastname    Doe
+    Input Text    css:#birthdate    05/14/1990
+    Click Element    css:#genderfemale
+    Input Text    css:#streetaddress    Baker Street 221B
+    ${country_value}=    Execute Javascript    return document.querySelector('#country').options[1].value;
+    Select From List By Value    css:#country    ${country_value}
+    Input Text    css:#zipcode    10115
+    Input Text    css:#city    Berlin
+    ${occupation_value}=    Execute Javascript    return document.querySelector('#occupation').options[1].value;
+    Select From List By Value    css:#occupation    ${occupation_value}
+    Click Button    css:#nextenterproductdata
+    Wait Until Element Is Visible    css:#startdate
+
+    Input Text    css:#startdate    09/01/2023
+    ${insurancesum_value}=    Execute Javascript    return document.querySelector('#insurancesum').options[1].value;
+    Select From List By Value    css:#insurancesum    ${insurancesum_value}
+    ${meritrating_value}=    Execute Javascript    return document.querySelector('#meritrating').options[1].value;
+    Select From List By Value    css:#meritrating    ${meritrating_value}
+    ${damageinsurance_value}=    Execute Javascript    return document.querySelector('#damageinsurance').options[1].value;
+    Select From List By Value    css:#damageinsurance    ${damageinsurance_value}
+    ${courtesycar_value}=    Execute Javascript    return document.querySelector('#courtesycar').options[1].value;
+    Select From List By Value    css:#courtesycar    ${courtesycar_value}
+    Click Button    css:#nextselectpriceoption
+    Wait Until Element Is Visible    css:#selectsilver    timeout=15s
+
+    Click Element    css:#selectsilver
+    Click Button    css:#nextsendquote
+    Wait Until Element Is Visible    css:#email
+
+    Input Text    css:#email    jane.doe@example.com
+    Input Text    css:#phone    1234567890
+    Input Text    css:#username    janedoe123
+    Input Text    css:#password    Passw0rd!
+    Input Text    css:#confirmpassword    Passw0rd!
+    Click Button    css:#sendemail
+    Wait Until Element Is Visible    css:#finished-container    timeout=15s
+    ${finished_text}=    Execute Javascript    return document.querySelector('#finished-container').innerText.substring(0, 500);
+    Log    FINISHED: ${finished_text}    console=True
