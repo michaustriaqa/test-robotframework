@@ -1,0 +1,4 @@
+# Optional tooling used during local development, not required to run the suites.
+# Robocop bundles both static analysis (`robocop check`) and formatting
+# (`robocop format`) in a single package.
+robotframework-robocop>=6.0

@@ -1,0 +1,4 @@
+# Runtime dependencies for executing the test suites.
+robotframework>=7.0,<8.0
+robotframework-seleniumlibrary>=6.5.0,<7.0
+robotframework-requests>=0.9.5,<1.0

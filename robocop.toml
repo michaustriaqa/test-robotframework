@@ -1,0 +1,10 @@
+[tool.robocop.lint]
+configure = [
+    # Page-object keywords intentionally take one named argument per form
+    # field for call-site readability; allow a slightly higher ceiling than
+    # the default.
+    "too-many-arguments.max_args=8",
+    # End-to-end test cases legitimately span more steps than the default
+    # ceiling; still bounded to keep suites readable.
+    "too-long-test-case.max_len=35",
+]
