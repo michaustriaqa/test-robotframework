@@ -48,7 +48,7 @@ ${SCROLLBAR_BUTTON}                     css:#hidingButton
 ${DYNAMIC_TABLE_ANSWER}                 css:.bg-warning
 
 # Verify Text
-${VERIFY_TEXT_PLAIN_PARAGRAPH}          xpath://p[contains(text(),'Hello') and not(contains(@class,'bg-warning'))]
+${VERIFY_TEXT_PLAIN_PARAGRAPH}          xpath://p[contains(.,'Hello') and not(contains(@class,'bg-warning'))]
 ${VERIFY_TEXT_HIGHLIGHTED_PARAGRAPH}    css:.bg-warning
 
 # Progress Bar
@@ -74,7 +74,7 @@ ${SAMPLE_APP_STATUS_MESSAGE}            css:#loginstatus
 ${SAMPLE_APP_VALID_PASSWORD}            pwd
 
 # Mouse Over
-${MOUSE_OVER_LINK}                      css:a.text-primary
+${MOUSE_OVER_LINK}                      xpath://a[@class="text-primary" and text()="Click me"]
 ${MOUSE_OVER_CLICK_COUNT}               css:#clickCount
 ${MOUSE_OVER_BUTTON_LINK}               xpath://a[@class="text-primary" and text()="Link Button"]
 ${MOUSE_OVER_BUTTON_CLICK_COUNT}        css:#clickButtonCount
@@ -209,10 +209,11 @@ Set Value Via Javascript
     [Arguments]    ${locator}    ${value}
     ${element}=    Get WebElement    ${locator}
     Execute Javascript
-    ...    ARGUMENTS
     ...    arguments[0].value = arguments[1];
     ...    arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
-    ...    ${element}    ${value}
+    ...    ARGUMENTS
+    ...    ${element}
+    ...    ${value}
 
 Get Row Cell Values
     [Documentation]    Reads the ARIA role="row" elements of the Dynamic Table challenge
@@ -226,6 +227,16 @@ Get Row Cell Values
     ...    .map(rowCells);
     RETURN    ${rows}
 
+Get Cpu Column Index
+    [Documentation]    Returns the position of the "CPU" column among the Dynamic Table
+    ...                challenge's headers. Column order (not just row order) reshuffles
+    ...                on every page load, so this can't be hardcoded.
+    ${index}=    Execute Javascript
+    ...    var headers = Array.from(document.querySelectorAll('[role="columnheader"]'))
+    ...    .map(function(h) { return h.textContent.trim(); });
+    ...    return headers.indexOf('CPU');
+    RETURN    ${index}
+
 Clear Field And Notify Page
     [Documentation]    Clears an input/textarea and manually dispatches an input event.
     ...                SeleniumLibrary's Clear Element Text updates the DOM value but does
@@ -236,6 +247,6 @@ Clear Field And Notify Page
     Clear Element Text    ${locator}
     ${element}=    Get WebElement    ${locator}
     Execute Javascript
-    ...    ARGUMENTS
     ...    arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
+    ...    ARGUMENTS
     ...    ${element}

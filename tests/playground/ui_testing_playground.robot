@@ -8,6 +8,7 @@ Documentation       Covers every challenge page listed on uitestingplayground.co
 ...                 Animated Button, and others) have markup or interaction mechanics
 ...                 that differ from what their names might suggest.
 
+Library             Collections
 Resource            ../../resources/variables.resource
 Resource            ../../resources/pages/playground_page.resource
 
@@ -36,10 +37,12 @@ Dynamic Id Button Should Be Locatable Without Relying On Its Changing Id
 Class Attribute Target Button Should Be Clicked By Its Unique Class
     [Documentation]    Three buttons share nearly identical class lists that differ only
     ...    by a volatile class1/class2/class3 marker; only .btn-primary reliably and
-    ...    uniquely identifies the intended target.
+    ...    uniquely identifies the intended target, confirmed by the alert it raises.
     Go To Playground Page    classattr
     Page Should Contain Element    ${CLASS_ATTRIBUTE_TARGET_BUTTON}    limit=1
     Click Button    ${CLASS_ATTRIBUTE_TARGET_BUTTON}
+    ${alert_message}=    Handle Alert    action=ACCEPT
+    Should Be Equal    ${alert_message}    Primary button pressed
 
 Clicking The Green Button Should Swap In A Different Layer
     [Documentation]    The button under #spa is replaced by a different element after the
@@ -100,11 +103,12 @@ Hiding Button Should Be Clickable After Scrolling It Into View
     Click Button    ${SCROLLBAR_BUTTON}
 
 Dynamic Table Chrome Cpu Value Should Match The Highlighted Answer
-    [Documentation]    The table's row order reshuffles on every page load, so the Chrome
-    ...    row must be located by its Name cell rather than a fixed position, then
-    ...    cross-checked against the highlighted answer paragraph.
+    [Documentation]    Both row order and column order reshuffle on every page load, so
+    ...    the Chrome row must be located by its Name cell and the CPU value by its
+    ...    header label, then cross-checked against the highlighted answer paragraph.
     Go To Playground Page    dynamictable
     @{rows}=    Get Row Cell Values
+    ${cpu_index}=    Get Cpu Column Index
     VAR    ${chrome_row}=    ${NONE}
     FOR    ${row}    IN    @{rows}
         IF    '${row}[0]' == 'Chrome'
@@ -112,8 +116,9 @@ Dynamic Table Chrome Cpu Value Should Match The Highlighted Answer
         END
     END
     Should Not Be Equal    ${chrome_row}    ${NONE}    msg=No Chrome row found in the dynamic table.
+    ${cpu_value}=    Get From List    ${chrome_row}    ${cpu_index}
     ${answer_text}=    Get Text    ${DYNAMIC_TABLE_ANSWER}
-    Should Be Equal As Strings    ${answer_text}    Chrome CPU: ${chrome_row}[3]
+    Should Be Equal As Strings    ${answer_text}    Chrome CPU: ${cpu_value}
 
 Verify Text Highlighted Paragraph Should Match The Plain Paragraph Once Normalized
     [Documentation]    The two paragraphs look identical but may differ in raw whitespace
@@ -157,7 +162,7 @@ Sample App Should Log In With The Valid Password And Reject An Invalid One
     Input Text    ${SAMPLE_APP_USERNAME_FIELD}    Michelle
     Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    wrong-password
     Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
-    Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    User logged out.
+    Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Invalid username/password
     Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    ${SAMPLE_APP_VALID_PASSWORD}
     Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
     Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Welcome, Michelle!
@@ -294,7 +299,7 @@ All Scroll To Click Targets Should Be Reachable And Clicked
     Mouse Over    ${SCROLL_HOVER_ROW}
     Scroll Element Into View    ${SCROLL_TARGET_4}
     Click Button    ${SCROLL_TARGET_4}
-    Element Text Should Be    ${SCROLL_PROGRESS_TEXT}    Buttons clicked: 4 / 4
+    Element Text Should Be    ${SCROLL_PROGRESS_TEXT}    All buttons clicked!
 
 Css Selectors Should Correctly Distinguish The Highlighted Button From Its Hidden Siblings
     [Documentation]    Five buttons are hidden using five different CSS techniques, none
@@ -342,12 +347,18 @@ Progress Bar Value Should Be At Least
 
 Trigger Alert And Verify Message
     [Documentation]    Clicks a button that opens a native dialog, optionally answers a
-    ...                prompt, accepts the dialog, and asserts it carried a message.
+    ...                prompt, accepts the dialog, and asserts it carried a message. The
+    ...                Prompt dialog raises a second follow-up alert echoing the entered
+    ...                value, which must also be accepted before the next test runs.
     [Arguments]    ${button_locator}    ${prompt_text}=${NONE}
     Click Button    ${button_locator}
     IF    $prompt_text is not None    Input Text Into Alert    ${prompt_text}
     ${message}=    Handle Alert    action=ACCEPT
     Should Not Be Empty    ${message}
+    IF    $prompt_text is not None
+        ${followup_message}=    Handle Alert    action=ACCEPT
+        Should Contain    ${followup_message}    ${prompt_text}
+    END
 
 Remaining Visibility Techniques Should Be Hidden
     [Documentation]    Checks the four Visibility page techniques that Selenium's
