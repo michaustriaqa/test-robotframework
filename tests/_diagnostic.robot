@@ -1,6 +1,9 @@
 *** Settings ***
-Documentation       Temporary diagnostic: dumps real DOM structure for every failing
-...                 playground page in one CI run. Not part of the portfolio.
+Documentation       Temporary diagnostic, round 2: dumps real DOM structure for the
+...                 playground pages discovered via the real site's homepage link list
+...                 (Frames, Geo Location, Clear Input, Scroll to Click, CSS Selectors,
+...                 Select) plus remaining unknowns (dynamic table rows, sample app field
+...                 types, file upload structure, alert text). Not part of the portfolio.
 Resource            ../resources/pages/playground_page.resource
 Suite Setup         Open Browser    about:blank    ${BROWSER}
 Suite Teardown      Close All Browsers
@@ -25,86 +28,71 @@ Dump Page Elements
 
 
 *** Test Cases ***
-Dump Homepage
-    Go To    ${PLAYGROUND_BASE_URL}
-    ${dump}=    Execute Javascript
-    ...    function describeLink(a) {
-    ...    return a.getAttribute('href') + ' => ' + a.innerText.trim();
-    ...    }
-    ...    var links = Array.from(document.querySelectorAll('a[href]')).map(describeLink);
-    ...    return Array.from(new Set(links)).join(' | ');
-    Log    HOMEPAGE LINKS: ${dump}    console=True
-    ${footer}=    Execute Javascript    return document.body.innerText.substring(0, 500);
-    Log    HOMEPAGE TEXT: ${footer}    console=True
-
-Dump Class Attribute
-    Go To Playground Page    classattr
-    Dump Page Elements
-
-Dump Hidden Layers
-    Go To Playground Page    hiddenlayers
-    Dump Page Elements
-
-Dump Dynamic Table
-    Go To Playground Page    dynamictable
-    Dump Page Elements
-
-Dump Verify Text
-    Go To Playground Page    verifytext
-    Dump Page Elements
-
-Dump Progress Bar
-    Go To Playground Page    progressbar
-    Click Button    ${PROGRESS_BAR_START_BUTTON}
-    Sleep    20s
-    ${value}=    Get Element Attribute    ${PROGRESS_BAR}    aria-valuenow
-    Log    PROGRESS AFTER 20s: ${value}    console=True
-
-Dump Sample App
-    Go To Playground Page    sampleapp
-    Dump Page Elements
-
-Dump Mouse Over
-    Go To Playground Page    mouseover
-    Dump Page Elements
-
-Dump Overlapped
-    Go To Playground Page    overlapped
-    Dump Page Elements
-    Input Text    css:#name    Michelle
-    ${value}=    Get Element Attribute    css:#name    value
-    Log    NAME VALUE AFTER INPUT: ${value}    console=True
-
-Dump Shadow Dom
-    Go To Playground Page    shadowdom
-    ${dump}=    Execute Javascript
-    ...    var host = document.querySelector('guid-generator');
-    ...    if (!host) { return 'NO guid-generator HOST FOUND. Custom tags: ' + Array.from(document.querySelectorAll('*')).filter(function(e) { return e.tagName.includes('-'); }).map(function(e) { return e.tagName; }).join(','); }
-    ...    var root = host.shadowRoot;
-    ...    if (!root) { return 'HOST FOUND BUT NO shadowRoot'; }
-    ...    return Array.from(root.querySelectorAll('*')).map(function(e) { return e.tagName + '#' + (e.id || '') + '.' + (e.className || ''); }).join(' | ');
-    Log    SHADOW DUMP: ${dump}    console=True
-
-Dump Alerts
-    Go To Playground Page    alerts
-    Dump Page Elements
-
-Dump File Upload
-    Go To Playground Page    upload
-    Dump Page Elements
-
-Dump Animated Button
-    Go To Playground Page    animatedbutton
-    Dump Page Elements
-
-Dump Disabled Input
-    Go To Playground Page    disabledinput
+Dump Animation
+    Go To Playground Page    animation
     Dump Page Elements
 
 Dump Auto Wait
-    Go To Playground Page    auto_wait
+    Go To Playground Page    autowait
     Dump Page Elements
 
-Dump Auto Complete
-    Go To Playground Page    auto_complete
+Dump Frames
+    Go To Playground Page    frames
+    ${dump}=    Execute Javascript
+    ...    return Array.from(document.querySelectorAll('iframe')).map(function(f) {
+    ...    return 'IFRAME#' + (f.id || '') + ' src=' + f.getAttribute('src');
+    ...    }).join(' | ');
+    Log    FRAMES DUMP: ${dump}    console=True
     Dump Page Elements
+
+Dump Geolocation
+    Go To Playground Page    geolocation
+    Dump Page Elements
+
+Dump Clear Input
+    Go To Playground Page    clearinput
+    Dump Page Elements
+
+Dump Scroll To Click
+    Go To Playground Page    scrolltoclick
+    Dump Page Elements
+
+Dump CSS Selectors
+    Go To Playground Page    cssselectors
+    Dump Page Elements
+
+Dump Select
+    Go To Playground Page    select
+    Dump Page Elements
+
+Dump Dynamic Table Full
+    Go To Playground Page    dynamictable
+    ${dump}=    Execute Javascript
+    ...    return Array.from(document.querySelectorAll('table tr')).map(function(tr) {
+    ...    return Array.from(tr.children).map(function(td) { return td.textContent.trim(); }).join(',');
+    ...    }).join(' || ');
+    Log    TABLE DUMP: ${dump}    console=True
+
+Dump Sample App Fields
+    Go To Playground Page    sampleapp
+    ${dump}=    Execute Javascript
+    ...    return Array.from(document.querySelectorAll('input')).map(function(i) {
+    ...    return i.id + ':type=' + i.type + ':placeholder=' + (i.placeholder || '');
+    ...    }).join(' | ');
+    Log    FIELDS DUMP: ${dump}    console=True
+
+Dump File Upload Full
+    Go To Playground Page    upload
+    ${dump}=    Execute Javascript
+    ...    var iframes = document.querySelectorAll('iframe').length;
+    ...    var inputs = Array.from(document.querySelectorAll('input')).map(function(i) {
+    ...    return i.type + '#' + i.id;
+    ...    });
+    ...    return 'iframes=' + iframes + ' inputs=' + inputs.join(',');
+    Log    UPLOAD DUMP: ${dump}    console=True
+
+Dump Alerts Interaction
+    Go To Playground Page    alerts
+    Click Button    ${ALERT_BUTTON}
+    ${msg}=    Handle Alert    action=ACCEPT
+    Log    ALERT MESSAGE: ${msg}    console=True
