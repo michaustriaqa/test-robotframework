@@ -39,7 +39,8 @@ Attempt Full Quote Flow
     Click Button    css:#nextenterproductdata
     Wait Until Element Is Visible    css:#startdate
 
-    Input Text    css:#startdate    09/01/2023
+    ${start_date}=    Get Current Date    increment=60 days    result_format=%m/%d/%Y
+    Input Text    css:#startdate    ${start_date}
     ${insurancesum_value}=    Execute Javascript    return document.querySelector('#insurancesum').options[1].value;
     Select From List By Value    css:#insurancesum    ${insurancesum_value}
     ${meritrating_value}=    Execute Javascript    return document.querySelector('#meritrating').options[1].value;
