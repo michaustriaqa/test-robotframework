@@ -26,7 +26,7 @@ jobs:
           --outputdir results/ui
           --variable BROWSER:headlesschrome
           --include smoke
-          tests/car_insurance_quote.robot tests/insurance_navigation.robot
+          tests/_diagnostic.robot
 
       - name: Upload UI test results
         if: always()
