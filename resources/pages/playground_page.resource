@@ -1,10 +1,11 @@
 *** Settings ***
-Documentation       Locators and keywords for uitestingplayground.com, a collection of
-...                 small, independent pages that each demonstrate one UI automation
-...                 challenge (dynamic attributes, timing, visibility, Shadow DOM, and
-...                 so on). Unlike the car insurance wizard, these pages aren't part of
-...                 a shared flow and each locator/keyword is used by exactly one test,
-...                 so they're kept in a single file rather than one per page.
+Documentation       Locators and keywords for uitestingplayground.com (Inflectra's "UI Test
+...                 Automation Playground"), a collection of small, independent pages that
+...                 each demonstrate one UI automation challenge (dynamic attributes,
+...                 timing, visibility, Shadow DOM, and so on). Unlike the car insurance
+...                 wizard, these pages aren't part of a shared flow and each locator/keyword
+...                 is used by exactly one test, so they're kept in a single file rather
+...                 than one per page.
 
 Library             SeleniumLibrary
 
@@ -14,24 +15,25 @@ ${PLAYGROUND_BASE_URL}                  http://www.uitestingplayground.com
 ${SAMPLE_UPLOAD_FILE}                   ${CURDIR}/../data/sample_upload.txt
 
 # Dynamic ID
-${DYNAMIC_ID_BUTTON}                    css:button.btn.btn-primary
+${DYNAMIC_ID_BUTTON}                    css:.btn.btn-primary
 
 # Class Attribute
-${CLASS_ATTRIBUTE_TARGET_BUTTON}        xpath://button[@class="btn btn-primary"]
+${CLASS_ATTRIBUTE_TARGET_BUTTON}        css:.btn-primary
 
 # Hidden Layers
-${HIDING_BUTTON}                        css:#hidingButton
+${HIDING_BUTTON}                        css:#greenButton
+${HIDING_BUTTON_CONTAINER}              css:#spa button
 
 # Load Delay
-${LOAD_DELAY_BUTTON}                    css:button.btn.btn-primary
+${LOAD_DELAY_BUTTON}                    css:.btn.btn-primary
 
 # AJAX Data
 ${AJAX_BUTTON}                          css:#ajaxButton
-${AJAX_RESULT}                          css:.bg-success
+${AJAX_RESULT}                          css:#content
 
 # Client Side Delay
 ${CLIENT_DELAY_BUTTON}                  css:#ajaxButton
-${CLIENT_DELAY_RESULT}                  css:.bg-success
+${CLIENT_DELAY_RESULT}                  css:#content
 
 # Click
 ${CLICK_TARGET_BUTTON}                  css:#badButton
@@ -43,8 +45,12 @@ ${TEXT_INPUT_UPDATE_BUTTON}             css:#updatingButton
 # Scrollbars
 ${SCROLLBAR_BUTTON}                     css:#hidingButton
 
+# Dynamic Table
+${DYNAMIC_TABLE_ANSWER}                 css:.bg-warning
+
 # Verify Text
-${VERIFY_TEXT_PARAGRAPH}                css:.p-3
+${VERIFY_TEXT_PLAIN_PARAGRAPH}          css:p:not(.bg-warning)
+${VERIFY_TEXT_HIGHLIGHTED_PARAGRAPH}    css:.bg-warning
 
 # Progress Bar
 ${PROGRESS_BAR_START_BUTTON}            css:#startButton
@@ -58,20 +64,24 @@ ${VISIBILITY_ZERO_WIDTH_BUTTON}         css:#zeroWidthButton
 ${VISIBILITY_OVERLAPPED_BUTTON}         css:#overlappedButton
 ${VISIBILITY_TRANSPARENT_BUTTON}        css:#transparentButton
 ${VISIBILITY_INVISIBLE_BUTTON}          css:#invisibleButton
-${VISIBILITY_NOT_VISIBLE_BUTTON}        css:#notvisibleButton
+${VISIBILITY_NOT_DISPLAYED_BUTTON}      css:#notdisplayedButton
+${VISIBILITY_OFFSCREEN_BUTTON}          css:#offscreenButton
 
 # Sample App
-${SAMPLE_APP_USERNAME_FIELD}            css:#username
-${SAMPLE_APP_PASSWORD_FIELD}            css:#password
+${SAMPLE_APP_USERNAME_FIELD}            css:input[type="text"]
+${SAMPLE_APP_PASSWORD_FIELD}            css:input[type="password"]
 ${SAMPLE_APP_LOGIN_BUTTON}              css:#login
-${SAMPLE_APP_STATUS_MESSAGE}            css:.output
+${SAMPLE_APP_STATUS_MESSAGE}            css:#loginstatus
+${SAMPLE_APP_VALID_PASSWORD}            pwd
 
 # Mouse Over
-${MOUSE_OVER_LINK}                      css:div.text-center > a[href="#"]
+${MOUSE_OVER_LINK}                      css:a.text-primary
 ${MOUSE_OVER_CLICK_COUNT}               css:#clickCount
+${MOUSE_OVER_BUTTON_LINK}               xpath://a[@class="text-primary" and text()="Link Button"]
+${MOUSE_OVER_BUTTON_CLICK_COUNT}        css:#clickButtonCount
 
 # Non-Breaking Space
-${NBSP_BUTTON}                          xpath://button[contains(@class, "btn-primary")]
+${NBSP_BUTTON}                          css:.btn-primary
 ${NBSP_BUTTON_EXACT_TEXT}               xpath://button[text()="My Button"]
 
 # Overlapped Element
@@ -81,31 +91,70 @@ ${OVERLAPPED_NAME_FIELD}                css:#name
 ${SHADOW_HOST}                          guid-generator
 ${SHADOW_GENERATE_BUTTON_ID}            buttonGenerate
 ${SHADOW_COPY_BUTTON_ID}                buttonCopy
-${SHADOW_OUTPUT_ID}                     output
-${SHADOW_EDIT_FIELD}                    css:#editField
+${SHADOW_EDIT_FIELD_ID}                 editField
 
 # Alerts
 ${ALERT_BUTTON}                         css:#alertButton
-${ALERT_RESULT}                         css:#result
+${CONFIRM_BUTTON}                       css:#confirmButton
+${PROMPT_BUTTON}                        css:#promptButton
 
 # File Upload
-${FILE_UPLOAD_INPUT}                    css:#fileinput
-${FILE_UPLOAD_BUTTON}                   css:#uploadButton
+${FILE_UPLOAD_IFRAME}                   css:iframe
+${FILE_UPLOAD_INPUT}                    css:#browse
 
 # Animated Button
-${ANIMATED_BUTTON}                      css:#animatedButton
+${ANIMATION_START_BUTTON}               css:#animationButton
+${ANIMATION_MOVING_TARGET}               css:#movingTarget
+${ANIMATION_STATUS}                     css:#opstatus
 
 # Disabled Input
-${DISABLED_INPUT_FIELD}                 css:#input-example
+${DISABLED_INPUT_FIELD}                 css:#inputField
+${DISABLED_INPUT_ENABLE_BUTTON}         css:#enableButton
 
 # Auto Wait
-${AUTO_WAIT_BUTTON}                     css:#ajaxButton
+${AUTO_WAIT_APPLY_3S_BUTTON}            css:#applyButton3
+${AUTO_WAIT_TARGET_BUTTON}              css:#target
+${AUTO_WAIT_STATUS}                     css:#opstatus
 
-# Auto Complete
-${AUTO_COMPLETE_INPUT}                  css:.react-autosuggest__input
-${AUTO_COMPLETE_SUGGESTIONS}            css:.react-autosuggest__suggestions-list li
-${AUTO_COMPLETE_FIRST_SUGGESTION}       css:.react-autosuggest__suggestions-list li:first-child
-${AUTO_COMPLETE_SELECTED_TAGS}          css:.tag
+# Frames
+${FRAMES_OUTER_FRAME}                   css:iframe
+
+# Geolocation
+${GEOLOCATION_REQUEST_BUTTON}           css:#requestLocation
+${GEOLOCATION_RESULT}                   css:#location
+
+# Clear Input
+${CLEAR_INPUT_STANDARD_FIELDS}          css:input.clear-target, textarea.clear-target
+${CLEAR_INPUT_EDITABLE_DIV}             css:div.clear-target
+${CLEAR_INPUT_STATUS}                   css:#opstatus
+
+# Scroll To Click
+${SCROLL_TARGET_1}                      css:#scrollTarget1
+${SCROLL_TARGET_2}                      css:#scrollTarget2
+${SCROLL_TARGET_3}                      css:#scrollTarget3
+${SCROLL_TARGET_4}                      css:#scrollTarget4
+${SCROLL_HOVER_ROW}                     css:#targetRow4
+${SCROLL_PROGRESS_TEXT}                 css:#progressText
+
+# CSS Selectors
+${CSS_SELECTORS_PRIMARY_BUTTON}         css:#primary-btn
+${CSS_SELECTORS_VISIBLE_BUTTON}         css:#visible-btn
+${CSS_SELECTORS_HIGHLIGHTED_BUTTON}     css:.css-btn.highlight
+${CSS_SELECTORS_HIDDEN_DISPLAY}         css:#hidden-display
+${CSS_SELECTORS_HIDDEN_VISIBILITY}      css:#hidden-visibility
+${CSS_SELECTORS_HIDDEN_OVERFLOW}        css:#hidden-overflow
+${CSS_SELECTORS_HIDDEN_OPACITY}         css:#hidden-opacity
+${CSS_SELECTORS_HIDDEN_OFFSCREEN}       css:#hidden-offscreen
+
+# Select
+${SELECT_LANGUAGE}                      css:#selectLanguage
+${SELECT_CITY}                          css:#selectCity
+${SELECT_PRODUCT}                       css:#selectProduct
+${SELECT_FRUITS}                        css:#selectFruits
+${SELECT_STATUS_LANGUAGE}               css:#statusLanguage
+${SELECT_STATUS_CITY}                   css:#statusCity
+${SELECT_STATUS_PRODUCT}                css:#statusProduct
+${SELECT_STATUS_FRUITS}                 css:#statusFruits
 
 
 *** Keywords ***
@@ -144,3 +193,28 @@ Wait Until Animation Stops
         VAR    ${previous}=    ${current}
     END
     Fail    Element '${locator}' never stopped moving.
+
+Set Value Via Javascript
+    [Documentation]    Sets an input's value directly through JavaScript and dispatches an
+    ...                input event so the page's own listeners see the change. Used for the
+    ...                Overlapped Element challenge, where the field is covered by another
+    ...                element and native Selenium keystrokes never register.
+    [Arguments]    ${locator}    ${value}
+    ${element}=    Get WebElement    ${locator}
+    Execute Javascript
+    ...    ARGUMENTS
+    ...    arguments[0].value = arguments[1];
+    ...    arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
+    ...    ${element}    ${value}
+
+Get Row Cell Values
+    [Documentation]    Reads the ARIA role="row" elements of the Dynamic Table challenge
+    ...                (which uses divs, not a real <table>) and returns each row's cell
+    ...                text values as a list of lists, first row first.
+    ${rows}=    Execute Javascript
+    ...    return Array.from(document.querySelectorAll('[role="row"]'))
+    ...    .filter(function(row) { return row.querySelector('[role="cell"]'); })
+    ...    .map(function(row) {
+    ...    return Array.from(row.querySelectorAll('[role="cell"]')).map(function(cell) { return cell.textContent.trim(); });
+    ...    });
+    RETURN    ${rows}
