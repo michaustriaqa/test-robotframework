@@ -186,11 +186,11 @@ Non Breaking Space Button Should Not Match An Exact Text Locator
     Click Button    ${NBSP_BUTTON}
 
 Overlapped Name Field Should Accept Text Set Through Javascript
-    [Documentation]    The field is covered by another element, so native Selenium
-    ...    keystrokes never register; setting the value directly through JavaScript and
-    ...    dispatching an input event is the documented workaround.
+    [Documentation]    A permanently positioned element covers the field, so native
+    ...    Selenium clicks and keystrokes are intercepted; setting the value directly
+    ...    through JavaScript is the workaround.
     Go To Playground Page    overlapped
-    Set Value Via Javascript    ${OVERLAPPED_NAME_FIELD}    Michelle Austria
+    Set Value Via Javascript    ${OVERLAPPED_NAME_FIELD_SELECTOR}    Michelle Austria
     ${value}=    Get Element Attribute    ${OVERLAPPED_NAME_FIELD}    value
     Should Be Equal    ${value}    Michelle Austria
 
