@@ -1,0 +1,21 @@
+# Robot Framework run artifacts
+results/
+log.html
+report.html
+output.xml
+*.png
+selenium-screenshot-*.png
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
