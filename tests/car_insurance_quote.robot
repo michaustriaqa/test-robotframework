@@ -62,8 +62,23 @@ Create Quote For Car With Valid Data
     Click Button    css:#nextenterproductdata
     Log    STEP: wait startdate    console=True
     Wait Until Element Is Visible    css:#startdate
-    Log    STEP: Enter Product Data    console=True
-    Enter Product Data
+    Log    STEP: startdate input    console=True
+    ${start_date}=    Get Current Date    increment=60 days    result_format=%m/%d/%Y
+    Input Text    css:#startdate    ${start_date}
+    Log    STEP: insurancesum    console=True
+    ${insurancesum_value}=    Execute Javascript    return document.getElementById('insurancesum').options[1].value;
+    Select From List By Value    css:#insurancesum    ${insurancesum_value}
+    Log    STEP: meritrating    console=True
+    ${meritrating_value}=    Execute Javascript    return document.getElementById('meritrating').options[1].value;
+    Select From List By Value    css:#meritrating    ${meritrating_value}
+    Log    STEP: damageinsurance    console=True
+    ${damageinsurance_value}=    Execute Javascript    return document.getElementById('damageinsurance').options[1].value;
+    Select From List By Value    css:#damageinsurance    ${damageinsurance_value}
+    Log    STEP: courtesycar    console=True
+    ${courtesycar_value}=    Execute Javascript    return document.getElementById('courtesycar').options[1].value;
+    Select From List By Value    css:#courtesycar    ${courtesycar_value}
+    Log    STEP: nextselectpriceoption    console=True
+    Click Button    css:#nextselectpriceoption
     Log    STEP: Product Data Should Be Accepted    console=True
     Product Data Should Be Accepted
     Log    STEP: DONE    console=True
