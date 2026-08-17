@@ -27,9 +27,7 @@ Create Quote For Car With Valid Data
     ...                steps of a car insurance quote with a valid profile, and the
     ...                wizard accepts the submission.
     [Tags]    smoke
-    Log    STEP: Select Automobile Insurance    console=True
     Select Automobile Insurance
-    Log    STEP: Enter Vehicle Data    console=True
     Enter Vehicle Data
     ...    make=Mercedes Benz
     ...    engine_performance=68
@@ -38,50 +36,16 @@ Create Quote For Car With Valid Data
     ...    fuel=Diesel
     ...    list_price=50000
     ...    annual_mileage=32185
-    Log    STEP: firstname    console=True
-    Input Text    css:#firstname    Jane
-    Log    STEP: lastname    console=True
-    Input Text    css:#lastname    Doe
-    Log    STEP: birthdate    console=True
-    Input Text    css:#birthdate    05/14/1990
-    Log    STEP: gender    console=True
-    Click Element    css:#genderfemale + span.ideal-radio
-    Log    STEP: streetaddress    console=True
-    Input Text    css:#streetaddress    Baker Street 221B
-    Log    STEP: country    console=True
-    ${country_value}=    Execute Javascript    return document.getElementById('country').options[1].value;
-    Select From List By Value    css:#country    ${country_value}
-    Log    STEP: zipcode    console=True
-    Input Text    css:#zipcode    10115
-    Log    STEP: city    console=True
-    Input Text    css:#city    Berlin
-    Log    STEP: occupation    console=True
-    ${occupation_value}=    Execute Javascript    return document.getElementById('occupation').options[1].value;
-    Select From List By Value    css:#occupation    ${occupation_value}
-    Log    STEP: nextenterproductdata    console=True
-    Click Button    css:#nextenterproductdata
-    Log    STEP: wait startdate    console=True
-    Wait Until Element Is Visible    css:#startdate
-    Log    STEP: startdate input    console=True
-    ${start_date}=    Get Current Date    increment=60 days    result_format=%m/%d/%Y
-    Input Text    css:#startdate    ${start_date}
-    Log    STEP: insurancesum    console=True
-    ${insurancesum_value}=    Execute Javascript    return document.getElementById('insurancesum').options[1].value;
-    Select From List By Value    css:#insurancesum    ${insurancesum_value}
-    Log    STEP: meritrating    console=True
-    ${meritrating_value}=    Execute Javascript    return document.getElementById('meritrating').options[1].value;
-    Select From List By Value    css:#meritrating    ${meritrating_value}
-    Log    STEP: damageinsurance    console=True
-    ${damageinsurance_value}=    Execute Javascript    return document.getElementById('damageinsurance').options[1].value;
-    Select From List By Value    css:#damageinsurance    ${damageinsurance_value}
-    Log    STEP: courtesycar    console=True
-    ${courtesycar_value}=    Execute Javascript    return document.getElementById('courtesycar').options[1].value;
-    Select From List By Value    css:#courtesycar    ${courtesycar_value}
-    Log    STEP: nextselectpriceoption    console=True
-    Click Button    css:#nextselectpriceoption
-    Log    STEP: Product Data Should Be Accepted    console=True
+    Enter Insurant Data
+    ...    first_name=Jane
+    ...    last_name=Doe
+    ...    birthdate=05/14/1990
+    ...    gender=Female
+    ...    street=Baker Street 221B
+    ...    zip_code=10115
+    ...    city=Berlin
+    Enter Product Data
     Product Data Should Be Accepted
-    Log    STEP: DONE    console=True
 
 Create Quote For Car With Multiple Vehicle Profiles
     [Documentation]    The quote wizard accepts a range of valid vehicle configurations.

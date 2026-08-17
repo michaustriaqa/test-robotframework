@@ -25,6 +25,7 @@ Enter Product Data
     [Documentation]    Fills in the requested product options with a valid, future
     ...                policy start date, and submits the step.
     ${start_date}=    Get Current Date    increment=60 days    result_format=%m/%d/%Y
+    Wait Until Element Is Enabled    ${START_DATE_FIELD}
     Input Text    ${START_DATE_FIELD}    ${start_date}
     Select First Available Option    ${INSURANCE_SUM_FIELD}    insurancesum
     Select First Available Option    ${MERITRATING_FIELD}    meritrating
