@@ -5,6 +5,8 @@ Documentation       Locators and keywords for the "Enter Insurant Data" step of 
 ...                 The country and occupation dropdowns use ideal-select styling with
 ...                 application-specific option values, so the keywords below select the
 ...                 first real (non-placeholder) option rather than a hard-coded label.
+...                 Every interaction retries briefly, since fields can still be settling
+...                 into place right after the previous step's panel closes.
 
 Library             SeleniumLibrary
 
@@ -35,25 +37,25 @@ Enter Insurant Data
     ...    ${street}
     ...    ${zip_code}
     ...    ${city}
-    Input Text    ${FIRST_NAME_FIELD}    ${first_name}
-    Input Text    ${LAST_NAME_FIELD}    ${last_name}
-    Input Text    ${BIRTHDATE_FIELD}    ${birthdate}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${FIRST_NAME_FIELD}    ${first_name}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${LAST_NAME_FIELD}    ${last_name}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${BIRTHDATE_FIELD}    ${birthdate}
     Select Gender    ${gender}
-    Input Text    ${STREET_FIELD}    ${street}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${STREET_FIELD}    ${street}
     Select First Available Option    ${COUNTRY_FIELD}    country
-    Input Text    ${ZIP_CODE_FIELD}    ${zip_code}
-    Input Text    ${CITY_FIELD}    ${city}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${ZIP_CODE_FIELD}    ${zip_code}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${CITY_FIELD}    ${city}
     Select First Available Option    ${OCCUPATION_FIELD}    occupation
-    Click Button    ${NEXT_BUTTON}
+    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
     Wait Until Element Is Visible    ${PRODUCT_DATA_FIRST_FIELD}
 
 Select Gender
     [Documentation]    Selects the insurant's gender. Valid values: Male, Female.
     [Arguments]    ${gender}
     IF    '${gender}' == 'Male'
-        Click Element    ${GENDER_MALE_RADIO}
+        Wait Until Keyword Succeeds    10x    300ms    Click Element    ${GENDER_MALE_RADIO}
     ELSE
-        Click Element    ${GENDER_FEMALE_RADIO}
+        Wait Until Keyword Succeeds    10x    300ms    Click Element    ${GENDER_FEMALE_RADIO}
     END
 
 Select First Available Option
@@ -64,4 +66,4 @@ Select First Available Option
     [Arguments]    ${locator}    ${element_id}
     ${value}=    Execute Javascript
     ...    return document.getElementById('${element_id}').options[1].value;
-    Select From List By Value    ${locator}    ${value}
+    Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${locator}    ${value}

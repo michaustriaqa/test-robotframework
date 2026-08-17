@@ -1,6 +1,9 @@
 *** Settings ***
 Documentation       Locators and keywords for the "Enter Vehicle Data" step of the
 ...                 insurance quote wizard.
+...
+...                 Every interaction retries briefly, since fields can still be
+...                 settling into place right after the insurance type tab is selected.
 
 Library             SeleniumLibrary
 
@@ -27,12 +30,15 @@ Enter Vehicle Data
     ...    ${fuel}
     ...    ${list_price}
     ...    ${annual_mileage}
-    Select From List By Value    ${MAKE_FIELD}    ${make}
-    Input Text    ${ENGINE_PERFORMANCE_FIELD}    ${engine_performance}
-    Input Text    ${MANUFACTURE_DATE_FIELD}    ${manufacture_date}
-    Select From List By Value    ${SEATS_FIELD}    ${seats}
-    Select From List By Value    ${FUEL_FIELD}    ${fuel}
-    Input Text    ${LIST_PRICE_FIELD}    ${list_price}
-    Input Text    ${ANNUAL_MILEAGE_FIELD}    ${annual_mileage}
-    Click Button    ${NEXT_BUTTON}
+    Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${MAKE_FIELD}    ${make}
+    Wait Until Keyword Succeeds    10x    300ms
+    ...    Input Text    ${ENGINE_PERFORMANCE_FIELD}    ${engine_performance}
+    Wait Until Keyword Succeeds    10x    300ms
+    ...    Input Text    ${MANUFACTURE_DATE_FIELD}    ${manufacture_date}
+    Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${SEATS_FIELD}    ${seats}
+    Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${FUEL_FIELD}    ${fuel}
+    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${LIST_PRICE_FIELD}    ${list_price}
+    Wait Until Keyword Succeeds    10x    300ms
+    ...    Input Text    ${ANNUAL_MILEAGE_FIELD}    ${annual_mileage}
+    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
     Wait Until Element Is Visible    ${INSURANT_DATA_FIRST_FIELD}
