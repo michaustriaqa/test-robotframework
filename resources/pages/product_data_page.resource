@@ -11,6 +11,7 @@ Documentation       Locators and keywords for the "Enter Product Data" step of t
 
 Library             DateTime
 Library             SeleniumLibrary
+Resource            ../common.resource
 
 
 *** Variables ***
@@ -19,6 +20,7 @@ ${INSURANCE_SUM_FIELD}          css:#insurancesum
 ${MERITRATING_FIELD}            css:#meritrating
 ${DAMAGE_INSURANCE_FIELD}       css:#damageinsurance
 ${COURTESY_CAR_FIELD}           css:#courtesycar
+${PRICE_LOADER}                 css:#xLoaderPrice
 
 
 *** Keywords ***
@@ -31,6 +33,7 @@ Enter Product Data
     Select First Available Option    ${MERITRATING_FIELD}    meritrating
     Select First Available Option    ${DAMAGE_INSURANCE_FIELD}    damageinsurance
     Select First Available Option    ${COURTESY_CAR_FIELD}    courtesycar
+    No Validation Errors Should Be Visible
     Click Next Button
 
 Click Next Button
@@ -52,6 +55,9 @@ Select First Available Option
     Wait Until Keyword Succeeds    10x    300ms    Select From List By Value    ${locator}    ${value}
 
 Product Data Should Be Accepted
-    [Documentation]    Verifies that the product data step was accepted and the wizard
-    ...                advanced towards price selection.
+    [Documentation]    Verifies the wizard genuinely moved on: the product data panel
+    ...                is gone, and the price step's loading indicator has appeared,
+    ...                confirming the submission was accepted rather than merely that
+    ...                the previous panel disappeared for some unrelated reason.
     Wait Until Element Is Not Visible    ${START_DATE_FIELD}
+    Wait Until Element Is Visible    ${PRICE_LOADER}

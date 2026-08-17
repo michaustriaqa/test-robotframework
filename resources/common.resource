@@ -21,3 +21,14 @@ Capture Screenshot On Failure
     [Documentation]    Saves a screenshot of the current page whenever a test fails,
     ...    to speed up debugging.
     Run Keyword If Test Failed    Capture Page Screenshot
+
+No Validation Errors Should Be Visible
+    [Documentation]    Verifies the current step shows no active field validation
+    ...                errors, confirming submitted data was genuinely accepted rather
+    ...                than silently rejected.
+    ${errors}=    Execute Javascript
+    ...    var candidates = document.querySelectorAll('.error, .errorMessage, .invalid, [class*="error"]');
+    ...    function isVisibleError(e) { return e.offsetParent !== null && e.textContent.trim().length > 1; }
+    ...    var visible = Array.from(candidates).filter(isVisibleError);
+    ...    return visible.map(function(e) { return e.textContent.trim(); }).join(' || ');
+    Should Be Empty    ${errors}    msg=Unexpected validation errors: ${errors}

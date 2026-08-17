@@ -15,13 +15,15 @@ CI execution.
 
 ```
 resources/
-├── common.resource          # Browser lifecycle & failure diagnostics
+├── common.resource          # Browser lifecycle, failure diagnostics & shared assertions
 ├── variables.resource       # Global configuration (URL, browser, timeouts)
 ├── pages/                   # One resource file per wizard step (Page Object Model)
 │   ├── home_page.resource
 │   ├── vehicle_data_page.resource
 │   ├── insurant_data_page.resource
 │   └── product_data_page.resource
+├── data/
+│   └── car_insurance_test_data.resource    # Named vehicle/insurant test profiles
 └── api/
     └── jsonplaceholder.resource
 
@@ -115,9 +117,17 @@ robocop format tests resources
   sliced by CI stage (`smoke` for fast feedback, `regression` for full
   coverage).
 - **Data-driven cases** — `[Template]` is used where the same flow needs to
-  be exercised with multiple data sets (vehicle profiles, user ids).
+  be exercised with multiple data sets (vehicle profiles, user ids). Reusable
+  vehicle/insurant profiles live as named dictionaries in
+  `resources/data/car_insurance_test_data.resource` and are passed into
+  keywords via Robot's `&{dict}` argument-unpacking syntax, rather than
+  duplicating literals inline in each test case.
 - **Isolation** — `Test Setup`/`Test Teardown` reset state between tests and
   capture a screenshot on UI failures for debugging.
+- **Meaningful assertions** — each wizard step verifies it was genuinely
+  accepted (the previous panel is gone, the next one has taken its place,
+  and no client-side validation errors are showing) rather than only
+  asserting that no exception was raised.
 
 ## Known limitations
 

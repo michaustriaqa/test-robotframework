@@ -6,6 +6,7 @@ Documentation       Locators and keywords for the "Enter Vehicle Data" step of t
 ...                 settling into place right after the insurance type tab is selected.
 
 Library             SeleniumLibrary
+Resource            ../common.resource
 
 
 *** Variables ***
@@ -39,8 +40,16 @@ Enter Vehicle Data
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${LIST_PRICE_FIELD}    ${list_price}
     Wait Until Keyword Succeeds    10x    300ms
     ...    Input Text    ${ANNUAL_MILEAGE_FIELD}    ${annual_mileage}
+    No Validation Errors Should Be Visible
     Click Next Button
     Wait Until Element Is Visible    ${INSURANT_DATA_FIRST_FIELD}
+
+Vehicle Data Should Be Accepted
+    [Documentation]    Verifies the wizard genuinely moved on to the insurant data step:
+    ...                the vehicle data panel is gone and the insurant data panel has
+    ...                taken its place, rather than both simply coexisting.
+    Element Should Not Be Visible    ${MAKE_FIELD}
+    Element Should Be Visible    ${INSURANT_DATA_FIRST_FIELD}
 
 Click Next Button
     [Documentation]    Submits the step. A plain WebDriver click on the equivalent

@@ -9,6 +9,7 @@ Documentation       Locators and keywords for the "Enter Insurant Data" step of 
 ...                 into place right after the previous step's panel closes.
 
 Library             SeleniumLibrary
+Resource            ../common.resource
 
 
 *** Variables ***
@@ -45,8 +46,16 @@ Enter Insurant Data
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${ZIP_CODE_FIELD}    ${zip_code}
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${CITY_FIELD}    ${city}
     Select First Available Option    ${OCCUPATION_FIELD}    occupation
+    No Validation Errors Should Be Visible
     Click Next Button
     Wait Until Element Is Visible    ${PRODUCT_DATA_FIRST_FIELD}
+
+Insurant Data Should Be Accepted
+    [Documentation]    Verifies the wizard genuinely moved on to the product data step:
+    ...                the insurant data panel is gone and the product data panel has
+    ...                taken its place, rather than both simply coexisting.
+    Element Should Not Be Visible    ${FIRST_NAME_FIELD}
+    Element Should Be Visible    ${PRODUCT_DATA_FIRST_FIELD}
 
 Click Next Button
     [Documentation]    Submits the step. A plain WebDriver click on this button was
