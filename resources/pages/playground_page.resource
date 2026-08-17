@@ -12,7 +12,8 @@ Library             SeleniumLibrary
 
 *** Variables ***
 ${PLAYGROUND_BASE_URL}                  http://www.uitestingplayground.com
-${SAMPLE_UPLOAD_FILE}                   ${CURDIR}/../data/sample_upload.txt
+${SAMPLE_UPLOAD_FILE}
+...                                     ${{os.path.normpath(r'${CURDIR}' + '/../data/sample_upload.txt')}}
 
 # Dynamic ID
 ${DYNAMIC_ID_BUTTON}                    css:.btn.btn-primary

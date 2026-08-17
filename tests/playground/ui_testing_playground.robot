@@ -284,7 +284,7 @@ Clear Input Should Reduce The Non Empty Field Counter To Zero
     ...    var editable = document.querySelector('#clearContentEditable');
     ...    editable.textContent = '';
     ...    editable.dispatchEvent(new Event('input', {bubbles: true}));
-    Element Text Should Be    ${CLEAR_INPUT_STATUS}    Non-empty fields remaining: 0
+    Element Text Should Be    ${CLEAR_INPUT_STATUS}    All fields are cleared!
 
 All Scroll To Click Targets Should Be Reachable And Clicked
     [Documentation]    Each button needs a different technique to become clickable: a
