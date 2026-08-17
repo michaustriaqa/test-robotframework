@@ -25,12 +25,24 @@ Enter Product Data
     [Documentation]    Fills in the requested product options with a valid, future
     ...                policy start date, and submits the step.
     ${start_date}=    Get Current Date    increment=60 days    result_format=%m/%d/%Y
-    Wait Until Keyword Succeeds    10x    300ms    Input Text    ${START_DATE_FIELD}    ${start_date}
-    Select First Available Option    ${INSURANCE_SUM_FIELD}    insurancesum
-    Select First Available Option    ${MERITRATING_FIELD}    meritrating
-    Select First Available Option    ${DAMAGE_INSURANCE_FIELD}    damageinsurance
-    Select First Available Option    ${COURTESY_CAR_FIELD}    courtesycar
-    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
+    TRY
+        Wait Until Keyword Succeeds    10x    300ms    Input Text    ${START_DATE_FIELD}    ${start_date}
+        Select First Available Option    ${INSURANCE_SUM_FIELD}    insurancesum
+        Select First Available Option    ${MERITRATING_FIELD}    meritrating
+        Select First Available Option    ${DAMAGE_INSURANCE_FIELD}    damageinsurance
+        Select First Available Option    ${COURTESY_CAR_FIELD}    courtesycar
+        Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
+    EXCEPT    AS    ${error}
+        Log Product Data Element States
+        Fail    ${error}
+    END
+
+Log Product Data Element States
+    [Documentation]    TEMPORARY diagnostic: dumps geometry/style/disabled state for
+    ...                every product-data element to explain an interactability failure.
+    ${state}=    Execute Javascript
+    ...    function info(id) { var e = document.getElementById(id); if (!e) return id + '=MISSING'; var r = e.getBoundingClientRect(); var s = getComputedStyle(e); return id + ': rect=' + JSON.stringify({x:r.x,y:r.y,w:r.width,h:r.height}) + ' display=' + s.display + ' visibility=' + s.visibility + ' opacity=' + s.opacity + ' pointerEvents=' + s.pointerEvents + ' disabled=' + e.disabled; } return ['startdate','insurancesum','meritrating','damageinsurance','courtesycar','nextselectpriceoption'].map(info).join(' || ');
+    Log    ELEMENT STATES: ${state}    console=True
 
 Select First Available Option
     [Documentation]    Selects the first real (non-placeholder) option of a select field.
