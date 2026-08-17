@@ -2,6 +2,7 @@
 Documentation       Temporary diagnostic suite: attempts the full corrected wizard flow
 ...                 against the live application and logs the outcome. Not part of the
 ...                 portfolio.
+Library             DateTime
 Resource            ../resources/common.resource
 Suite Setup         Open Insurance Application
 Suite Teardown      Close Insurance Application
