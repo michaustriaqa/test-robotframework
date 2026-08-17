@@ -8,6 +8,7 @@ Documentation       Covers every challenge page listed on uitestingplayground.co
 ...                 Animated Button, and others) have markup or interaction mechanics
 ...                 that differ from what their names might suggest.
 
+Resource            ../../resources/variables.resource
 Resource            ../../resources/pages/playground_page.resource
 
 Suite Setup         Open Playground Browser
