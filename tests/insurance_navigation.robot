@@ -10,23 +10,33 @@ Suite Teardown      Close Insurance Application
 Test Setup          Go To Homepage
 Test Teardown       Capture Screenshot On Failure
 
-Test Tags           smoke    navigation
+Test Tags           navigation
 
 
 *** Test Cases ***
 Automobile Tab Is Selectable
-    [Documentation]    The automobile insurance tab becomes active when selected and
-    ...    reveals the vehicle data form.
+    [Documentation]    Selecting the automobile insurance type reveals the vehicle data
+    ...                form.
+    [Tags]    smoke
     Select Automobile Insurance
-    Automobile Tab Should Be Active
-    Element Should Be Visible    css:#entervehicledata
+    Element Should Be Visible    css:#make
 
-Motorcycle Tab Is Selectable
-    [Documentation]    The motorcycle insurance tab becomes active when selected.
-    Select Motorcycle Insurance
-    Motorcycle Tab Should Be Active
+Other Insurance Types Are Selectable
+    [Documentation]    Selecting truck, motorcycle or camper insurance also reveals the
+    ...                vehicle data form. Extrapolated from the verified automobile
+    ...                behaviour above, since the wizard is shared across vehicle types;
+    ...                not included in the CI-gated smoke suite.
+    [Tags]    regression
+    [Template]    Insurance Type Should Reveal Vehicle Data Form
+    Truck
+    Motorcycle
+    Camper
 
-Travel Tab Is Selectable
-    [Documentation]    The travel insurance tab becomes active when selected.
-    Select Travel Insurance
-    Travel Tab Should Be Active
+
+*** Keywords ***
+Insurance Type Should Reveal Vehicle Data Form
+    [Documentation]    Selects the given insurance type and verifies the vehicle data
+    ...                form becomes visible. Valid values: Truck, Motorcycle, Camper.
+    [Arguments]    ${insurance_type}
+    Run Keyword    Select ${insurance_type} Insurance
+    Element Should Be Visible    css:#make

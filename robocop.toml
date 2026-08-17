@@ -7,4 +7,7 @@ configure = [
     # End-to-end test cases legitimately span more steps than the default
     # ceiling; still bounded to keep suites readable.
     "too-long-test-case.max_len=35",
+    # A form-filling keyword with one call per field naturally exceeds the
+    # default ceiling; still bounded to keep keywords readable.
+    "too-many-calls-in-keyword.max_calls=12",
 ]

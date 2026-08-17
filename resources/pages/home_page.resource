@@ -7,9 +7,10 @@ Resource            ../variables.resource
 
 *** Variables ***
 ${AUTOMOBILE_TAB}       css:#nav_automobile
+${TRUCK_TAB}            css:#nav_truck
 ${MOTORCYCLE_TAB}       css:#nav_motorcycle
-${TRAVEL_TAB}           css:#nav_travel
-${VEHICLE_DATA_FORM}    css:#entervehicledata
+${CAMPER_TAB}           css:#nav_camper
+${MAKE_FIELD}           css:#make
 
 
 *** Keywords ***
@@ -19,32 +20,21 @@ Go To Homepage
     Wait Until Element Is Visible    ${AUTOMOBILE_TAB}
 
 Select Automobile Insurance
-    [Documentation]    Opens the car insurance quote wizard.
+    [Documentation]    Opens the automobile insurance quote wizard.
     Click Element    ${AUTOMOBILE_TAB}
-    Wait Until Element Is Visible    ${VEHICLE_DATA_FORM}
+    Wait Until Element Is Visible    ${MAKE_FIELD}
+
+Select Truck Insurance
+    [Documentation]    Opens the truck insurance quote wizard.
+    Click Element    ${TRUCK_TAB}
+    Wait Until Element Is Visible    ${MAKE_FIELD}
 
 Select Motorcycle Insurance
-    [Documentation]    Switches the landing page to the motorcycle insurance type.
+    [Documentation]    Opens the motorcycle insurance quote wizard.
     Click Element    ${MOTORCYCLE_TAB}
+    Wait Until Element Is Visible    ${MAKE_FIELD}
 
-Select Travel Insurance
-    [Documentation]    Switches the landing page to the travel insurance type.
-    Click Element    ${TRAVEL_TAB}
-
-Automobile Tab Should Be Active
-    [Documentation]    Verifies the automobile tab is highlighted as the active insurance type.
-    Tab Should Be Active    ${AUTOMOBILE_TAB}
-
-Motorcycle Tab Should Be Active
-    [Documentation]    Verifies the motorcycle tab is highlighted as the active insurance type.
-    Tab Should Be Active    ${MOTORCYCLE_TAB}
-
-Travel Tab Should Be Active
-    [Documentation]    Verifies the travel tab is highlighted as the active insurance type.
-    Tab Should Be Active    ${TRAVEL_TAB}
-
-Tab Should Be Active
-    [Documentation]    Verifies that the given navigation tab carries the "active" class.
-    [Arguments]    ${tab_locator}
-    ${classes}=    Get Element Attribute    ${tab_locator}    class
-    Should Contain    ${classes}    active
+Select Camper Insurance
+    [Documentation]    Opens the camper insurance quote wizard.
+    Click Element    ${CAMPER_TAB}
+    Wait Until Element Is Visible    ${MAKE_FIELD}

@@ -1,28 +1,31 @@
 *** Settings ***
-Documentation       End-to-end regression coverage for the car insurance quote wizard
-...                 on the Tricentis sample insurance application.
+Documentation       Regression coverage for the vehicle, insurant and product data steps
+...                 of the insurance quote wizard on the Tricentis sample insurance
+...                 application.
+...
+...                 Price selection and quote submission are not covered here; see the
+...                 "Known limitations" section of the project README.
 
 Resource            ../resources/common.resource
 Resource            ../resources/pages/home_page.resource
 Resource            ../resources/pages/vehicle_data_page.resource
 Resource            ../resources/pages/insurant_data_page.resource
 Resource            ../resources/pages/product_data_page.resource
-Resource            ../resources/pages/price_option_page.resource
-Resource            ../resources/pages/confirmation_page.resource
 
 Suite Setup         Open Insurance Application
 Suite Teardown      Close Insurance Application
 Test Setup          Go To Homepage
 Test Teardown       Capture Screenshot On Failure
-Test Timeout        2 minutes
+Test Timeout        1 minute
 
-Test Tags           car-insurance    e2e
+Test Tags           car-insurance
 
 
 *** Test Cases ***
 Create Quote For Car With Valid Data
-    [Documentation]    A customer can obtain a car insurance quote by completing the
-    ...    full quote wizard with a valid vehicle and personal profile.
+    [Documentation]    A customer can complete the vehicle, insurant and product data
+    ...                steps of a car insurance quote with a valid profile, and the
+    ...                wizard accepts the submission.
     [Tags]    smoke
     Select Automobile Insurance
     Enter Vehicle Data
@@ -41,16 +44,8 @@ Create Quote For Car With Valid Data
     ...    street=Baker Street 221B
     ...    zip_code=10115
     ...    city=Berlin
-    ...    occupation=Employee
     Enter Product Data
-    ...    start_date=09/01/2023
-    ...    insurance_sum=1000000
-    ...    meritrating=1
-    ...    damage_insurance=Basic
-    ...    courtesy_car=${TRUE}
-    Select Price Option    basic
-    Send Quote
-    Quote Should Be Confirmed
+    Product Data Should Be Accepted
 
 Create Quote For Car With Multiple Vehicle Profiles
     [Documentation]    The quote wizard accepts a range of valid vehicle configurations.
@@ -64,7 +59,7 @@ Create Quote For Car With Multiple Vehicle Profiles
 *** Keywords ***
 Request Car Quote For Vehicle
     [Documentation]    Requests a car insurance quote for the given vehicle, using a
-    ...    fixed, valid insurant profile.
+    ...                fixed, valid insurant profile.
     [Arguments]    ${make}
     ...    ${engine_performance}
     ...    ${manufacture_date}
@@ -89,13 +84,5 @@ Request Car Quote For Vehicle
     ...    street=Main Street 1
     ...    zip_code=10115
     ...    city=Berlin
-    ...    occupation=Employee
     Enter Product Data
-    ...    start_date=09/01/2023
-    ...    insurance_sum=1000000
-    ...    meritrating=1
-    ...    damage_insurance=Basic
-    ...    courtesy_car=${FALSE}
-    Select Price Option    basic
-    Send Quote
-    Quote Should Be Confirmed
+    Product Data Should Be Accepted

@@ -5,7 +5,9 @@ built around the Page Object pattern and structured for maintainability and
 CI execution.
 
 - **UI suite** — drives the [Tricentis sample insurance application](https://sampleapp.tricentis.com/)
-  with `SeleniumLibrary`, exercising the car insurance quote wizard end to end.
+  with `SeleniumLibrary`, exercising the vehicle, insurant and product data steps of
+  the car insurance quote wizard (see "Known limitations" below for what's out of
+  scope).
 - **API suite** — exercises the [JSONPlaceholder](https://jsonplaceholder.typicode.com)
   REST API with `RequestsLibrary`.
 
@@ -19,9 +21,7 @@ resources/
 │   ├── home_page.resource
 │   ├── vehicle_data_page.resource
 │   ├── insurant_data_page.resource
-│   ├── product_data_page.resource
-│   ├── price_option_page.resource
-│   └── confirmation_page.resource
+│   └── product_data_page.resource
 └── api/
     └── jsonplaceholder.resource
 
@@ -79,8 +79,7 @@ Run by tag (e.g. the fast smoke subset):
 robot --outputdir results --include smoke tests
 ```
 
-Available tags: `smoke`, `regression`, `e2e`, `navigation`, `api`,
-`car-insurance`.
+Available tags: `smoke`, `regression`, `navigation`, `api`, `car-insurance`.
 
 Run results (`log.html`, `report.html`, `output.xml`, screenshots) are
 written to `results/` and are not committed to version control.
@@ -126,6 +125,15 @@ The UI suite targets a third-party public demo application. If Tricentis
 updates the markup of `sampleapp.tricentis.com`, only the affected file(s)
 under `resources/pages/` need to be updated — the test cases themselves
 should remain unchanged.
+
+Price selection and quote submission (the steps after product data) are not
+covered. The wizard's price-plan step depends on an asynchronous request
+that was observed to hang indefinitely under headless automation in CI,
+independent of input validity — submitted product data was accepted (no
+validation errors, and the product-data panel correctly closed) but the
+subsequent price-plan panel never loaded even after 45+ seconds. Extending
+coverage to price selection and quote submission is a reasonable follow-up
+once that step's reliability under automation can be confirmed.
 
 ## License
 

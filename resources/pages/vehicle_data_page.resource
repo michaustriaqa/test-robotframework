@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation       Locators and keywords for the "Enter Vehicle Data" step of the
-...                 car insurance quote wizard.
+...                 insurance quote wizard.
 
 Library             SeleniumLibrary
 
@@ -14,7 +14,7 @@ ${FUEL_FIELD}                   css:#fuel
 ${LIST_PRICE_FIELD}             css:#listprice
 ${ANNUAL_MILEAGE_FIELD}         css:#annualmileage
 ${NEXT_BUTTON}                  css:#nextenterinsurantdata
-${INSURANT_DATA_FORM}           css:#enterinsurantdata
+${INSURANT_DATA_FIRST_FIELD}    css:#firstname
 
 
 *** Keywords ***
@@ -35,4 +35,4 @@ Enter Vehicle Data
     Input Text    ${LIST_PRICE_FIELD}    ${list_price}
     Input Text    ${ANNUAL_MILEAGE_FIELD}    ${annual_mileage}
     Click Button    ${NEXT_BUTTON}
-    Wait Until Element Is Visible    ${INSURANT_DATA_FORM}
+    Wait Until Element Is Visible    ${INSURANT_DATA_FIRST_FIELD}
