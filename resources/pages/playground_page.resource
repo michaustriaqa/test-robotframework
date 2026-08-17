@@ -23,6 +23,7 @@ ${CLASS_ATTRIBUTE_TARGET_BUTTON}        css:.btn-primary
 
 # Hidden Layers
 ${HIDING_BUTTON}                        css:#greenButton
+${HIDDEN_BLUE_BUTTON}                   css:#blueButton
 
 # Load Delay
 ${LOAD_DELAY_BUTTON}                    css:.btn.btn-primary
@@ -75,7 +76,7 @@ ${SAMPLE_APP_STATUS_MESSAGE}            css:#loginstatus
 ${SAMPLE_APP_VALID_PASSWORD}            pwd
 
 # Mouse Over
-${MOUSE_OVER_LINK}                      xpath://a[@class="text-primary" and text()="Click me"]
+${MOUSE_OVER_LINK}                      xpath://a[text()="Click me"]
 ${MOUSE_OVER_CLICK_COUNT}               css:#clickCount
 ${MOUSE_OVER_BUTTON_LINK}               xpath://a[@class="text-primary" and text()="Link Button"]
 ${MOUSE_OVER_BUTTON_CLICK_COUNT}        css:#clickButtonCount

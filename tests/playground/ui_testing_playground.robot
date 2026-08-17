@@ -44,16 +44,14 @@ Class Attribute Target Button Should Be Clicked By Its Unique Class
     ${alert_message}=    Handle Alert    action=ACCEPT
     Should Be Equal    ${alert_message}    Primary button pressed
 
-Clicking The Green Button Should Swap In A Different Layer
-    [Documentation]    The button under #spa is replaced by a different element after the
-    ...    first click, demonstrating a DOM-caching pitfall: a second click against a
-    ...    previously located WebElement reference would silently hit a stale layer.
+Clicking The Green Button Should Add A Covering Layer On Top
+    [Documentation]    Clicking the green button doesn't remove it -- it stacks a second,
+    ...    higher z-index layer with a blue button directly on top, so a second click at
+    ...    the same coordinates would silently hit the new layer instead.
     Go To Playground Page    hiddenlayers
     Wait Until Element Is Visible    ${HIDING_BUTTON}
     Click Element    ${HIDING_BUTTON}
-    ${new_id}=    Execute Javascript    return document.querySelector('#spa button').id;
-    Should Not Be Equal    ${new_id}    greenButton
-    ...    msg=Hidden Layers should swap in a different button after the first click.
+    Page Should Contain Element    ${HIDDEN_BLUE_BUTTON}
 
 Button Appearing After Delay Should Eventually Become Clickable
     [Documentation]    The button doesn't exist in a clickable state until the server
@@ -163,6 +161,7 @@ Sample App Should Log In With The Valid Password And Reject An Invalid One
     Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    wrong-password
     Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
     Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Invalid username/password
+    Input Text    ${SAMPLE_APP_USERNAME_FIELD}    Michelle
     Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    ${SAMPLE_APP_VALID_PASSWORD}
     Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
     Element Text Should Be    ${SAMPLE_APP_STATUS_MESSAGE}    Welcome, Michelle!

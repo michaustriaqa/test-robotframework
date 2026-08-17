@@ -1,9 +1,10 @@
 *** Settings ***
-Documentation       Temporary diagnostic, round 6: four assertions have now failed twice on
-...                 guessed fixes (Hidden Layers' id-swap, Sample App's valid password,
-...                 Mouse Over's link replacement, Overlapped's JS value-setting) -- this
-...                 gets real evidence instead of guessing a third time. Not part of the
-...                 portfolio.
+Documentation       Temporary diagnostic, round 7: Overlapped Element's field returns empty
+...                 even immediately after a synchronous JS value-set + input-event
+...                 dispatch, suggesting a listener resets it. Tests plain native input,
+...                 JS set without dispatch, JS set with dispatch, and the React "native
+...                 setter" trick, all at the same 1920x1080 window size the real suite
+...                 uses. Not part of the portfolio.
 Resource            ../resources/pages/playground_page.resource
 Suite Setup         Open Browser    about:blank    ${BROWSER}
 Suite Teardown      Close All Browsers
@@ -11,52 +12,44 @@ Test Tags           smoke
 
 
 *** Test Cases ***
-Dump Hidden Layers After Click
-    Go To Playground Page    hiddenlayers
-    ${before}=    Execute Javascript    return document.querySelector('#spa').outerHTML;
-    Log    SPA BEFORE CLICK: ${before}    console=True
-    Click Element    ${HIDING_BUTTON}
-    ${after}=    Execute Javascript    return document.querySelector('#spa').outerHTML;
-    Log    SPA AFTER CLICK: ${after}    console=True
-
-Dump Sample App Login Attempt
-    Go To Playground Page    sampleapp
-    Input Text    ${SAMPLE_APP_USERNAME_FIELD}    Michelle
-    Input Text    ${SAMPLE_APP_PASSWORD_FIELD}    pwd
-    ${username_value}=    Get Element Attribute    ${SAMPLE_APP_USERNAME_FIELD}    value
-    ${password_value}=    Get Element Attribute    ${SAMPLE_APP_PASSWORD_FIELD}    value
-    Log    FIELD VALUES BEFORE SUBMIT: username=${username_value} password=${password_value}    console=True
-    Click Button    ${SAMPLE_APP_LOGIN_BUTTON}
-    ${status}=    Get Text    ${SAMPLE_APP_STATUS_MESSAGE}
-    Log    STATUS AFTER SUBMIT: ${status}    console=True
-
-Dump Mouse Over Link Structure
-    Go To Playground Page    mouseover
-    ${before}=    Execute Javascript
-    ...    return Array.from(document.querySelectorAll('a')).map(function(a) {
-    ...    return 'outerHTML=' + a.outerHTML;
-    ...    }).join(' || ');
-    Log    LINKS BEFORE HOVER: ${before}    console=True
-    Mouse Over    css:a.text-primary
-    Sleep    300ms
-    ${after}=    Execute Javascript
-    ...    return Array.from(document.querySelectorAll('a')).map(function(a) {
-    ...    return 'outerHTML=' + a.outerHTML;
-    ...    }).join(' || ');
-    Log    LINKS AFTER HOVER: ${after}    console=True
-
-Dump Overlapped Field Framework And Direct Js Set
+Dump Overlapped Field Interaction Approaches
+    Set Window Size    1920    1080
     Go To Playground Page    overlapped
-    ${framework}=    Execute Javascript
-    ...    var root = document.getElementById('root') || document.getElementById('app') || document.body.firstElementChild;
-    ...    return 'reactroot=' + (root && !!Object.keys(root).find(function(k) { return k.startsWith('__reactContainer') || k.startsWith('_reactRootContainer'); })) + ' outerHTML=' + document.querySelector('#name').outerHTML;
-    Log    OVERLAPPED FIELD INFO: ${framework}    console=True
-    ${direct_result}=    Execute Javascript
+    ${listeners}=    Execute Javascript
     ...    var el = document.querySelector('#name');
-    ...    el.value = 'Michelle Austria';
+    ...    return 'outerHTML=' + el.outerHTML + ' oninput=' + el.oninput + ' onchange=' + el.onchange;
+    Log    FIELD ATTRIBUTES: ${listeners}    console=True
+
+    ${set_only}=    Execute Javascript
+    ...    var el = document.querySelector('#name');
+    ...    el.value = 'SetOnly';
+    ...    return 'value right after plain set, no dispatch: ' + el.value;
+    Log    ${set_only}    console=True
+    ${value_after_set_only}=    Get Element Attribute    css:#name    value
+    Log    VALUE VIA SELENIUM AFTER PLAIN SET (NO DISPATCH): ${value_after_set_only}    console=True
+
+    Go To Playground Page    overlapped
+    ${native_setter_result}=    Execute Javascript
+    ...    var el = document.querySelector('#name');
+    ...    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    ...    setter.call(el, 'NativeSetter');
     ...    el.dispatchEvent(new Event('input', {bubbles: true}));
-    ...    return 'immediately after set: ' + el.value;
-    Log    DIRECT SET RESULT: ${direct_result}    console=True
-    Sleep    300ms
-    ${value_after_wait}=    Get Element Attribute    css:#name    value
-    Log    VALUE AFTER 300MS WAIT: ${value_after_wait}    console=True
+    ...    return 'value right after native setter + dispatch: ' + el.value;
+    Log    ${native_setter_result}    console=True
+    ${value_after_native_setter}=    Get Element Attribute    css:#name    value
+    Log    VALUE VIA SELENIUM AFTER NATIVE SETTER: ${value_after_native_setter}    console=True
+
+    Go To Playground Page    overlapped
+    ${click_result}=    Run Keyword And Ignore Error    Click Element    css:#name
+    Log    CLICK RESULT: ${click_result}    console=True
+    ${input_result}=    Run Keyword And Ignore Error    Input Text    css:#name    PlainInput
+    Log    PLAIN INPUT TEXT RESULT: ${input_result}    console=True
+    ${value_after_plain_input}=    Get Element Attribute    css:#name    value
+    Log    VALUE AFTER PLAIN INPUT TEXT: ${value_after_plain_input}    console=True
+
+    ${overlap_check}=    Execute Javascript
+    ...    var el = document.querySelector('#name');
+    ...    var rect = el.getBoundingClientRect();
+    ...    var top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    ...    return 'isTop=' + (top === el) + ' topTag=' + (top ? top.outerHTML.substring(0, 80) : 'none');
+    Log    OVERLAP CHECK AT 1920x1080: ${overlap_check}    console=True
