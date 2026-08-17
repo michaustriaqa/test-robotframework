@@ -51,11 +51,11 @@ Attempt Full Quote Flow
     ${courtesycar_value}=    Execute Javascript    return document.querySelector('#courtesycar').options[1].value;
     Select From List By Value    css:#courtesycar    ${courtesycar_value}
     Click Button    css:#nextselectpriceoption
-    Sleep    3s
+    Sleep    5s
     ${state}=    Execute Javascript
-    ...    function vis(sel) { var e = document.querySelector(sel); if (!e) return sel + '=MISSING'; return sel + '=' + (e.offsetParent !== null ? 'VISIBLE' : 'hidden'); } var errs = Array.from(document.querySelectorAll('.error, .errorMessage, .invalid, [class*="error"]')).map(e => e.id + ':' + e.textContent.trim()).filter(t => t.length > 1).join(' || '); return [vis('#startdate'), vis('#selectsilver'), vis('#pricePlans'), vis('#xLoaderPrice')].join(', ') + ' ERRORS: ' + errs;
+    ...    function vis(sel) { var e = document.querySelector(sel); if (!e) return sel + '=MISSING'; return sel + '=' + (e.offsetParent !== null ? 'VISIBLE' : 'hidden'); } var errs = Array.from(document.querySelectorAll('.error, .errorMessage, .invalid, [class*="error"]')).filter(e => e.offsetParent !== null && e.textContent.trim().length > 1).map(e => (e.id || e.className) + ':' + e.textContent.trim()).join(' || '); var xhrs = performance.getEntriesByType('resource').filter(r => r.initiatorType === 'xmlhttprequest' || r.name.toLowerCase().includes('price') || r.name.toLowerCase().includes('quote')).map(r => r.name + ' dur=' + Math.round(r.duration)).join(' || '); return [vis('#startdate'), vis('#selectsilver'), vis('#pricePlans'), vis('#xLoaderPrice')].join(', ') + ' VISIBLE_ERRORS: ' + errs + ' | XHRS: ' + xhrs;
     Log    STATE AFTER NEXT: ${state}    console=True
-    Wait Until Element Is Visible    css:#selectsilver    timeout=15s
+    Wait Until Element Is Visible    css:#selectsilver    timeout=30s
 
     Click Element    css:#selectsilver + span.ideal-radio
     Click Button    css:#nextsendquote
