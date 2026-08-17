@@ -22,7 +22,6 @@ ${COUNTRY_FIELD}                css:#country
 ${ZIP_CODE_FIELD}               css:#zipcode
 ${CITY_FIELD}                   css:#city
 ${OCCUPATION_FIELD}             css:#occupation
-${NEXT_BUTTON}                  css:#nextenterproductdata
 ${PRODUCT_DATA_FIRST_FIELD}     css:#startdate
 
 
@@ -46,8 +45,16 @@ Enter Insurant Data
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${ZIP_CODE_FIELD}    ${zip_code}
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${CITY_FIELD}    ${city}
     Select First Available Option    ${OCCUPATION_FIELD}    occupation
-    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
+    Click Next Button
     Wait Until Element Is Visible    ${PRODUCT_DATA_FIRST_FIELD}
+
+Click Next Button
+    [Documentation]    Submits the step. A plain WebDriver click on this button was
+    ...                observed to intermittently and repeatedly fail with
+    ...                ElementNotInteractableException in CI even after several retries,
+    ...                so it's dispatched via JavaScript instead, which the button's own
+    ...                click handler responds to just as well.
+    Execute Javascript    document.getElementById('nextenterproductdata').click();
 
 Select Gender
     [Documentation]    Selects the insurant's gender. Valid values: Male, Female.

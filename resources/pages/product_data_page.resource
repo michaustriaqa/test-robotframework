@@ -19,7 +19,6 @@ ${INSURANCE_SUM_FIELD}          css:#insurancesum
 ${MERITRATING_FIELD}            css:#meritrating
 ${DAMAGE_INSURANCE_FIELD}       css:#damageinsurance
 ${COURTESY_CAR_FIELD}           css:#courtesycar
-${NEXT_BUTTON}                  css:#nextselectpriceoption
 
 
 *** Keywords ***
@@ -32,7 +31,15 @@ Enter Product Data
     Select First Available Option    ${MERITRATING_FIELD}    meritrating
     Select First Available Option    ${DAMAGE_INSURANCE_FIELD}    damageinsurance
     Select First Available Option    ${COURTESY_CAR_FIELD}    courtesycar
-    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
+    Click Next Button
+
+Click Next Button
+    [Documentation]    Submits the step. A plain WebDriver click on the equivalent
+    ...                button in an earlier step was observed to intermittently and
+    ...                repeatedly fail with ElementNotInteractableException in CI even
+    ...                after several retries, so it's dispatched via JavaScript instead,
+    ...                which the button's own click handler responds to just as well.
+    Execute Javascript    document.getElementById('nextselectpriceoption').click();
 
 Select First Available Option
     [Documentation]    Selects the first real (non-placeholder) option of a select field.

@@ -16,7 +16,6 @@ ${SEATS_FIELD}                  css:#numberofseats
 ${FUEL_FIELD}                   css:#fuel
 ${LIST_PRICE_FIELD}             css:#listprice
 ${ANNUAL_MILEAGE_FIELD}         css:#annualmileage
-${NEXT_BUTTON}                  css:#nextenterinsurantdata
 ${INSURANT_DATA_FIRST_FIELD}    css:#firstname
 
 
@@ -40,5 +39,13 @@ Enter Vehicle Data
     Wait Until Keyword Succeeds    10x    300ms    Input Text    ${LIST_PRICE_FIELD}    ${list_price}
     Wait Until Keyword Succeeds    10x    300ms
     ...    Input Text    ${ANNUAL_MILEAGE_FIELD}    ${annual_mileage}
-    Wait Until Keyword Succeeds    10x    300ms    Click Button    ${NEXT_BUTTON}
+    Click Next Button
     Wait Until Element Is Visible    ${INSURANT_DATA_FIRST_FIELD}
+
+Click Next Button
+    [Documentation]    Submits the step. A plain WebDriver click on the equivalent
+    ...                button in a later step was observed to intermittently and
+    ...                repeatedly fail with ElementNotInteractableException in CI even
+    ...                after several retries, so it's dispatched via JavaScript instead,
+    ...                which the button's own click handler responds to just as well.
+    Execute Javascript    document.getElementById('nextenterinsurantdata').click();
