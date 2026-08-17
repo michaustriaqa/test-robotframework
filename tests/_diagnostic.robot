@@ -25,6 +25,18 @@ Dump Page Elements
 
 
 *** Test Cases ***
+Dump Homepage
+    Go To    ${PLAYGROUND_BASE_URL}
+    ${dump}=    Execute Javascript
+    ...    function describeLink(a) {
+    ...    return a.getAttribute('href') + ' => ' + a.innerText.trim();
+    ...    }
+    ...    var links = Array.from(document.querySelectorAll('a[href]')).map(describeLink);
+    ...    return Array.from(new Set(links)).join(' | ');
+    Log    HOMEPAGE LINKS: ${dump}    console=True
+    ${footer}=    Execute Javascript    return document.body.innerText.substring(0, 500);
+    Log    HOMEPAGE TEXT: ${footer}    console=True
+
 Dump Class Attribute
     Go To Playground Page    classattr
     Dump Page Elements
