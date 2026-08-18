@@ -8,8 +8,10 @@ CI execution.
   with `SeleniumLibrary`, exercising the vehicle, insurant and product data steps of
   the car insurance quote wizard (see "Known limitations" below for what's out of
   scope).
-- **API suite** — exercises the [JSONPlaceholder](https://jsonplaceholder.typicode.com)
-  REST API with `RequestsLibrary`.
+- **API suite** — exercises the [restful-booker](https://restful-booker.herokuapp.com)
+  hotel booking API with `RequestsLibrary`: authentication, full CRUD on bookings,
+  partial updates, filtering, and auth enforcement on write operations. See
+  [`tests/api/README.md`](tests/api/README.md) for endpoint-level details.
 - **UI Testing Playground suite** — covers every challenge page listed on
   [uitestingplayground.com](http://www.uitestingplayground.com/)'s homepage
   (Inflectra's UI Test Automation Playground: dynamic attributes, timing,
@@ -31,13 +33,14 @@ resources/
 │   ├── car_insurance_test_data.resource    # Named vehicle/insurant test profiles
 │   └── sample_upload.txt                   # Fixture for the File Upload challenge
 └── api/
-    └── jsonplaceholder.resource
+    └── restful_booker.resource
 
 tests/
 ├── car_insurance_quote.robot    # End-to-end UI regression suite
 ├── insurance_navigation.robot   # UI smoke tests for the landing page
 ├── api/
-│   └── posts_api.robot          # API regression suite
+│   ├── README.md                # Endpoint coverage & quirks for the API suite
+│   └── booking_api.robot        # API regression suite
 └── playground/
     └── ui_testing_playground.robot    # One test case per playground challenge page
 ```
@@ -171,6 +174,11 @@ testing playground" might suggest (e.g. Sample App's fields use dynamically
 generated ids with no stable attribute but their `type`, and the Visibility
 page's seven hiding techniques only take effect after a button click, not
 on page load).
+
+The API suite targets a shared public practice server. Every test that
+creates a booking deletes it again by the end of the test (see
+`Delete Booking Using Fresh Token` in `tests/api/booking_api.robot`), so the
+suite doesn't accumulate leftover data on repeated runs.
 
 ## License
 
