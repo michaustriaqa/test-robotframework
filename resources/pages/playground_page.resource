@@ -23,6 +23,7 @@ ${CLASS_ATTRIBUTE_TARGET_BUTTON}        css:.btn-primary
 
 # Hidden Layers
 ${HIDING_BUTTON}                        css:#greenButton
+${HIDDEN_BLUE_BUTTON}                   css:#blueButton
 
 # Load Delay
 ${LOAD_DELAY_BUTTON}                    css:.btn.btn-primary
@@ -75,7 +76,7 @@ ${SAMPLE_APP_STATUS_MESSAGE}            css:#loginstatus
 ${SAMPLE_APP_VALID_PASSWORD}            pwd
 
 # Mouse Over
-${MOUSE_OVER_LINK}                      xpath://a[@class="text-primary" and text()="Click me"]
+${MOUSE_OVER_LINK}                      xpath://a[text()="Click me"]
 ${MOUSE_OVER_CLICK_COUNT}               css:#clickCount
 ${MOUSE_OVER_BUTTON_LINK}               xpath://a[@class="text-primary" and text()="Link Button"]
 ${MOUSE_OVER_BUTTON_CLICK_COUNT}        css:#clickButtonCount
@@ -86,6 +87,7 @@ ${NBSP_BUTTON_EXACT_TEXT}               xpath://button[text()="My Button"]
 
 # Overlapped Element
 ${OVERLAPPED_NAME_FIELD}                css:#name
+${OVERLAPPED_NAME_FIELD_SELECTOR}       input#name
 
 # Shadow DOM
 ${SHADOW_HOST}                          guid-generator
@@ -203,18 +205,13 @@ Wait Until Animation Stops
     Fail    Element '${locator}' never stopped moving.
 
 Set Value Via Javascript
-    [Documentation]    Sets an input's value directly through JavaScript and dispatches an
-    ...                input event so the page's own listeners see the change. Used for the
-    ...                Overlapped Element challenge, where the field is covered by another
-    ...                element and native Selenium keystrokes never register.
-    [Arguments]    ${locator}    ${value}
-    ${element}=    Get WebElement    ${locator}
-    Execute Javascript
-    ...    arguments[0].value = arguments[1];
-    ...    arguments[0].dispatchEvent(new Event('input', {bubbles: true}));
-    ...    ARGUMENTS
-    ...    ${element}
-    ...    ${value}
+    [Documentation]    Sets an input's value directly through JavaScript. Used for the
+    ...                Overlapped Element challenge, where a permanently positioned
+    ...                covering element blocks native Selenium clicks and keystrokes; the
+    ...                field carries no input/change listeners, so a plain property
+    ...                assignment (confirmed against the live page) is sufficient.
+    [Arguments]    ${selector}    ${value}
+    Execute Javascript    document.querySelector('${selector}').value = '${value}';
 
 Get Row Cell Values
     [Documentation]    Reads the ARIA role="row" elements of the Dynamic Table challenge
